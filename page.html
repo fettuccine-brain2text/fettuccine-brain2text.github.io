@@ -1,0 +1,324 @@
+<title>FETTUCCINE · Brain-to-text decoding on a phone</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="FETTUCCINE (NeurIPS 2026 Spotlight) adapts speech-recognition models to decode attempted speech from intracortical recordings, end to end, in 48 ms per sentence on an iPhone. Try the decoder live in your browser.">
+<link rel="canonical" href="{{SITE_URL}}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{SITE_URL}}">
+<meta property="og:title" content="FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices">
+<meta property="og:description" content="NeurIPS 2026 Spotlight. End-to-end brain-to-text decoding that runs on an iPhone in 48 ms per sentence.">
+<meta property="og:image" content="{{SITE_URL}}assets/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="citation_title" content="FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices">
+<meta name="citation_author" content="McCart, Jonathan D.">
+<meta name="citation_author" content="Deevi, Pranav I.">
+<meta name="citation_author" content="Azabou, Mehdi">
+<meta name="citation_author" content="Krishna, Nanda H.">
+<meta name="citation_author" content="McKinney, Caleb A.">
+<meta name="citation_author" content="Card, Nicholas S.">
+<meta name="citation_author" content="Stavisky, Sergey D.">
+<meta name="citation_author" content="Pandarinath, Chethan">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_conference_title" content="The Fortieth Annual Conference on Neural Information Processing Systems">
+<meta name="theme-color" content="#0a0e12">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"ScholarlyArticle","headline":"FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices","url":"{{SITE_URL}}","datePublished":"2026","isPartOf":{"@type":"Event","name":"NeurIPS 2026"},"keywords":"brain-computer interface, speech neuroprosthesis, brain-to-text, automatic speech recognition, on-device inference","author":[{"@type":"Person","name":"Jonathan D. McCart","affiliation":["Georgia Tech","Emory University"]},{"@type":"Person","name":"Pranav I. Deevi","affiliation":["Georgia Tech","Emory University"]},{"@type":"Person","name":"Mehdi Azabou","affiliation":"Georgia Tech"},{"@type":"Person","name":"Nanda H. Krishna","affiliation":["Mila","Université de Montréal"]},{"@type":"Person","name":"Caleb A. McKinney","affiliation":"Georgia Tech"},{"@type":"Person","name":"Nicholas S. Card","affiliation":"UC Davis"},{"@type":"Person","name":"Sergey D. Stavisky","affiliation":"UC Davis"},{"@type":"Person","name":"Chethan Pandarinath","affiliation":["Georgia Tech","Emory University"]}]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+
+<nav class="nav" aria-label="Sections">
+  <div class="wrap">
+    <a class="wordmark" href="#top"><span class="dot"></span>FETTUCCINE</a>
+    <ul>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#inside">Interpretability</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#cite">Cite</a></li>
+    </ul>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+    </button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill hot">NeurIPS 2026 · Spotlight</span>
+      <h1>FE<span class="tt">TT</span>UCCINE</h1>
+      <p class="subtitle">Fast and efficient brain&#8209;to&#8209;text decoding on mobile devices</p>
+      <p class="authors">
+        <a href="https://snel.ai/author/jonathan-mccart/" target="_blank" rel="noopener">Jonathan D. McCart</a><sup>1,2,*</sup>
+        <a href="https://snel.ai/author/pranav-deevi/" target="_blank" rel="noopener">Pranav I. Deevi</a><sup>1,2,*</sup>
+        <a href="https://www.mehai.dev/" target="_blank" rel="noopener">Mehdi Azabou</a><sup>1</sup>
+        <a href="https://nandahkrishna.com" target="_blank" rel="noopener">Nanda H. Krishna</a><sup>3,4</sup>
+        <a href="https://snel.ai/author/caleb-mckinney/" target="_blank" rel="noopener">Caleb A. McKinney</a><sup>1</sup>
+        <a href="https://neuroengineering.ucdavis.edu/people/nicholas-card" target="_blank" rel="noopener">Nicholas S. Card</a><sup>5</sup>
+        <a href="https://neuroengineering.ucdavis.edu/people/sergey-stavisky" target="_blank" rel="noopener">Sergey D. Stavisky</a><sup>5</sup>
+        <a href="https://snel.ai/author/chethan-pandarinath/" target="_blank" rel="noopener">Chethan Pandarinath</a><sup>1,2</sup>
+      </p>
+      <p class="affils"><span><sup>1</sup>Georgia Tech</span> <span><sup>2</sup>Emory University</span> <span><sup>3</sup>Mila</span> <span><sup>4</sup>Université de Montréal</span> <span><sup>5</sup>UC Davis</span> <span><sup>*</sup>equal contribution</span></p>
+      <div class="btns">
+        <a class="btn primary" href="#demo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Try it live</a>
+        <a class="btn" href="#" data-todo="paper-url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2.8h8.5L19 7.3v13.9H6z"/><path d="M14.3 2.8v4.6H19M9 12h7M9 15.5h7"/></svg>Paper</a>
+        <a class="btn" href="#" data-todo="arxiv-url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5l14 14M19 5L5 19"/></svg>arXiv</a>
+        <span class="btn" aria-disabled="true" title="Code release is pending institutional review"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5"/></svg>Code <span class="soon">soon</span></span>
+        <a class="btn" href="#cite"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 7h5v5c0 3.2-1.6 5.3-4.4 6.2l-.7-1.5c1.6-.7 2.5-1.9 2.6-3.7H5zM14 7h5v5c0 3.2-1.6 5.3-4.4 6.2l-.7-1.5c1.6-.7 2.5-1.9 2.6-3.7H14z"/></svg>Cite</a>
+      </div>
+    </div>
+
+    <figure class="phone-stage" aria-label="A phone replays recorded neural activity and shows the decoded sentences">
+      <div class="phone" id="phone">
+        <div class="phone-screen">
+          <div class="ph-status"><span class="num">9:41</span><span class="ph-island"></span><span class="ph-icons" aria-hidden="true"><svg viewBox="0 0 26 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".35"/></svg><svg viewBox="0 0 27 13"><rect x=".5" y=".5" width="22" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".5"/><rect x="2.5" y="2.5" width="15" height="8" rx="2"/><rect x="24" y="4.5" width="2" height="4" rx="1" opacity=".5"/></svg></span></div>
+          <div class="ph-head"><span class="ph-title">FETTUCCINE</span><span class="ph-sub"><i></i>on device</span></div>
+          <div class="ph-chat" id="phChat" aria-live="polite"></div>
+          <div class="ph-input">
+            <div class="ph-input-head"><span class="ph-state" id="phState"><i></i>Listening</span><span class="num" id="phTime">0.0 s</span></div>
+            <canvas id="phRaster" aria-hidden="true"></canvas>
+          </div>
+        </div>
+      </div>
+      <figcaption>Replay of recorded trials, sped up. Latency measured on an iPhone 15 Pro Max.</figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><span class="v">4.39<small>% WER</small></span><span class="k">lowest end-to-end error rate</span></div>
+      <div class="stat"><span class="v">48<small>ms</small></span><span class="k">per sentence on an iPhone</span></div>
+      <div class="stat"><span class="v">209<small>MB</small></span><span class="k">peak memory, vs. ~320 GB for a cascade</span></div>
+    </div>
+    <details class="abstract">
+      <summary>Abstract</summary>
+      <p>Recent advances in speech neuroprostheses have enabled new communication avenues for people who have lost the ability to speak due to neurological illness or injury. These systems can decode neural activity during attempted speech into text by relying on language priors to achieve high decoding accuracy. This performance currently comes at the cost of using a compute-intensive language modeling stack, presenting a major bottleneck for real-world use. Further, current language models incur highly variable and disruptive inference latencies, limiting communication throughput and preventing users from reliably participating in natural conversation. We introduce FETTUCCINE, an end-to-end brain-to-text framework that leverages the speed and portability of automatic speech recognition (ASR) models to address the aforementioned practical challenges, while achieving usable (&lt;10%) word error rates (WER), efficient adaptation to neural non-stationarities, and reliable performance on mobile devices. When evaluated using publicly available data from an intracortical speech neuroprosthesis user, FETTUCCINE outperforms previous end-to-end methods, achieving as low as 4.39% WER. Most notably, our models successfully run on a commercially-available mobile device with throughput reaching up to 370x real-time, providing the first demonstration of brain-to-text decoding on a mobile device. We also show that our models can be successfully finetuned to extend usable performance to future days. Beyond performance, our approach enables localization of the neural features most relevant for decoding via gradient-based saliency maps, which we show align with well-established physiological priors across different ASR model families. Taken together, our results show that FETTUCCINE overcomes core infrastructural and computational barriers, yielding a new class of portable brain-to-text communication.</p>
+    </details>
+  </div>
+</header>
+
+<main>
+  <section class="block" id="demo">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Live demo</h2>
+        <p>Pick a recorded sentence and decode it. The model runs on your device, in the browser.</p>
+        <a class="qr" id="qr" hidden><span class="qr-code"></span><span>Open on<br>your phone</span></a>
+      </div>
+
+      <div class="demo">
+        <div class="panel">
+          <div class="panel-head"><span class="label">Sentences</span><span class="label" id="trialCount"></span></div>
+          <div class="trials" id="trialList" role="list"></div>
+        </div>
+
+        <div class="panel" style="min-width:0">
+          <div class="panel-head">
+            <div class="engine" id="engine">
+              <span class="chip" id="engineChip"><i></i><span id="engineText">Model not downloaded</span></span>
+              <button class="icon-btn" id="loadModelBtn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Download</span></button>
+            </div>
+            <div class="seg" role="group" aria-label="Neural feature">
+              <button type="button" data-feat="sbp" aria-pressed="true">Spike-band power</button>
+              <button type="button" data-feat="tx" aria-pressed="false">Threshold crossings</button>
+            </div>
+          </div>
+          <div class="raster-wrap"><canvas id="raster" height="300" aria-label="Neural activity for the selected sentence"></canvas></div>
+          <div class="progress" id="loadBar" hidden><i></i></div>
+          <div class="panel-body demo-io">
+            <div class="cue-line"><span class="label">Cue</span><span class="cue-text" id="cueText"></span></div>
+            <div class="cue-line"><span class="label">Decoded</span><span class="out-text" id="outText" aria-live="polite"><span class="placeholder">Press decode</span></span></div>
+            <div class="decode-row">
+              <button class="btn primary" id="decodeBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span><span class="mode" id="decodeMode">saved</span></button>
+              <button class="icon-btn" id="speakBtn" type="button" disabled title="Read the decoded sentence aloud"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/></svg>Speak</button>
+              <span class="note" id="decodeNote"></span>
+            </div>
+          </div>
+          <div class="readouts">
+            <div class="readout"><span class="label">This device</span><span class="v hi num" id="rTotal">—</span><span class="s" id="rSplit">&nbsp;</span></div>
+            <div class="readout"><span class="label">iPhone 15 Pro Max</span><span class="v num" id="rPhone">—</span><span class="s" id="rPhoneSub">same model</span></div>
+            <div class="readout"><span class="label">Word errors</span><span class="v num" id="rWer">—</span><span class="s">vs. the cue</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Method</h2>
+        <p>A small Neural Adapter replaces the speech recognizer’s audio front end. LoRA tunes the encoder; the rest stays frozen. No language model.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="label">Cascade vs. end to end</span>
+          <div class="legend"><span><i class="sq" style="background:var(--accent)"></i>trained</span><span><i class="sq" style="background:var(--line-2)"></i>frozen</span></div></div>
+        <div class="panel-body" id="pipeDiagram"></div>
+      </div>
+
+      <div class="two method-row">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="label">Word-level augmentation</span>
+            <button class="icon-btn" id="augBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg>New sample</button>
+          </div>
+          <div class="panel-body aug">
+            <div class="seg" role="group" aria-label="Augmentation">
+              <button type="button" data-aug="warp" aria-pressed="true" title="Stretch each word ×0.5–2 and each pause ×0.3–3">Warp</button>
+              <button type="button" data-aug="gain" aria-pressed="true" title="Scale each word’s activity by a random gain">Gain</button>
+              <button type="button" data-aug="crop" aria-pressed="false" title="Keep a run of words and trim the transcript to match">Crop</button>
+            </div>
+            <canvas id="augCanvas" height="260" aria-label="Original and augmented neural activity"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="label">Ablations · validation WER</span></div>
+          <div class="panel-body"><div id="recipeChart"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="inside">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Interpretability</h2>
+        <p>Which electrodes and moments each decoded word depends on. Pick a word, then silence electrodes and decode again.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="word-chips" id="wordChips" role="group" aria-label="Choose a decoded word"></div>
+          <div class="cbar"><span>low</span><i id="cbarSwatch"></i><span>high saliency</span></div>
+        </div>
+        <div class="panel-body sal">
+          <div class="arrays" id="arrays"></div>
+          <div style="min-width:0"><canvas id="timeSal" height="200" aria-label="Saliency of each word over time"></canvas></div>
+        </div>
+      </div>
+
+      <div class="lesion">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="label">Silence electrodes</span>
+            <div class="seg" role="group" aria-label="Which electrodes to silence">
+              <button type="button" data-order="top" aria-pressed="true">Most salient</button>
+              <button type="button" data-order="rand" aria-pressed="false">Random</button>
+              <button type="button" data-order="custom" aria-pressed="false">Pick on the grid</button>
+            </div>
+          </div>
+          <div class="panel-body demo-io">
+            <div class="slider-row" id="kRow">
+              <span class="label">Count</span>
+              <input type="range" id="kSlider" min="0" max="9" step="1" value="5" aria-label="Number of electrodes to silence">
+              <span class="kbadge num" id="kBadge">16 / 256</span>
+            </div>
+            <div class="cue-line"><span class="label">Cue</span><span class="cue-text" id="lesionCue"></span></div>
+            <div class="cue-line"><span class="label">Decoded</span><span class="out-text" id="lesionOut"><span class="placeholder">—</span></span></div>
+            <div class="decode-row">
+              <button class="btn primary" id="lesionBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span><span class="mode" id="lesionMode">saved</span></button>
+              <button class="icon-btn" id="lesionReset" type="button">Reset</button>
+              <span class="note" id="lesionNote"></span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="label">Word error rate vs. electrodes silenced</span>
+            <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>most salient first</span><span><i class="ln" style="background:var(--fg-3)"></i>random</span></div></div>
+          <div class="panel-body"><div id="ablChart"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="results">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Latency</h2>
+        <p>One forward pass per word piece, so latency stays flat. The cascade’s language-model search has a long tail.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="label">Per sentence · NVIDIA A40 · validation set</span></div>
+        <div class="panel-body"><div id="latChart"></div></div>
+      </div>
+      <div class="panel stack">
+        <div class="panel-head"><span class="label">Ten sentences, played back in real time</span>
+          <button class="icon-btn" id="raceBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Start</button></div>
+        <div class="panel-body race" id="race"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="memory">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Accuracy and memory</h2>
+        <p>Every FETTUCCINE variant runs on an iPhone, in 209–676 MB. The cascade needs about 320 GB.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="label">Word error rate vs. peak memory</span>
+          <div class="legend"><span><i style="background:var(--whisper)"></i>Whisper</span><span><i style="background:var(--parakeet)"></i>Parakeet</span><span><i class="sq" style="background:var(--fg-3)"></i>other methods</span></div></div>
+        <div class="panel-body"><div id="memChart"></div></div>
+      </div>
+      <div class="panel stack">
+        <div class="panel-head"><span class="label">All models</span></div>
+        <div class="table-wrap" id="zooTable"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="adaptation">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Generalization</h2>
+        <p>Accuracy drops on later recording days; finetuning on that day’s data recovers it, and more pretraining days help.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="label">Held-out days · May–July 2024</span>
+          <div class="seg" role="group" aria-label="Backbone">
+            <button type="button" data-bb="whisper" aria-pressed="true">Whisper Base</button>
+            <button type="button" data-bb="parakeet" aria-pressed="false">Parakeet EOU</button>
+          </div>
+        </div>
+        <div class="panel-body gallery" id="ftGallery">
+          <div class="card"><p class="label sub">Zero-shot vs. finetuned</p><div id="ftBars"></div></div>
+          <div class="card"><p class="label sub">Minutes of new-day data</p><div id="ftMinutes"></div></div>
+          <div class="card"><p class="label sub">Days in pretraining</p><div id="ftScaling"></div></div>
+        </div>
+        <div class="dots" id="ftDots" role="tablist" aria-label="Charts"><button type="button" aria-label="Zero-shot vs. finetuned"></button><button type="button" aria-label="Minutes of new-day data"></button><button type="button" aria-label="Days in pretraining"></button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="cite">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Citation</h2>
+      </div>
+      <div class="bib">
+        <pre id="bibtex">@inproceedings{mccart2026fettuccine,
+  title     = {{FETTUCCINE}: Fast and efficient brain-to-text decoding on mobile devices},
+  author    = {McCart, Jonathan D. and Deevi, Pranav I. and Azabou, Mehdi and
+               Krishna, Nanda H. and McKinney, Caleb A. and Card, Nicholas S. and
+               Stavisky, Sergey D. and Pandarinath, Chethan},
+  booktitle = {The Fortieth Annual Conference on Neural Information Processing Systems},
+  year      = {2026}
+}</pre>
+        <button class="icon-btn copy" id="copyBib" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/></svg><span>Copy</span></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer></footer>
+
+<div class="tip" id="tip" hidden></div>
+<script src="assets/js/config.js"></script>
+<script type="module" src="assets/js/app.js"></script>

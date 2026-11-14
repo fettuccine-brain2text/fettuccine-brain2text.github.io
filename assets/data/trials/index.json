@@ -1,0 +1,289 @@
+{
+"trials": [
+{
+"id": "t15-20231103-b6-t19",
+"session": "2023-11-03",
+"block": 6,
+"trial": 19,
+"cue": "employers have also voiced concerns",
+"T": 942,
+"dur": 18.84,
+"bin": "trials/t15-20231103-b6-t19.bin.gz",
+"json": "trials/t15-20231103-b6-t19.json",
+"featured": true,
+"iphone": null
+},
+{
+"id": "t15-20231203-b4-t23",
+"session": "2023-12-03",
+"block": 4,
+"trial": 23,
+"cue": "it's my voice",
+"T": 378,
+"dur": 7.56,
+"bin": "trials/t15-20231203-b4-t23.bin.gz",
+"json": "trials/t15-20231203-b4-t23.json",
+"featured": false,
+"iphone": {
+"total_ms": 41.5,
+"enc_ms": 27.3,
+"dec_ms": 14.2
+}
+},
+{
+"id": "t15-20231104-b4-t0",
+"session": "2023-11-04",
+"block": 4,
+"trial": 0,
+"cue": "how are you doing",
+"T": 536,
+"dur": 10.72,
+"bin": "trials/t15-20231104-b4-t0.bin.gz",
+"json": "trials/t15-20231104-b4-t0.json",
+"featured": false,
+"iphone": {
+"total_ms": 41.2,
+"enc_ms": 27.2,
+"dec_ms": 14.1
+}
+},
+{
+"id": "t15-20231103-b6-t18",
+"session": "2023-11-03",
+"block": 6,
+"trial": 18,
+"cue": "thank you for participating",
+"T": 584,
+"dur": 11.68,
+"bin": "trials/t15-20231103-b6-t18.bin.gz",
+"json": "trials/t15-20231103-b6-t18.json",
+"featured": false,
+"iphone": {
+"total_ms": 41.5,
+"enc_ms": 27.1,
+"dec_ms": 14.4
+}
+},
+{
+"id": "t15-20240315-b7-t21",
+"session": "2024-03-15",
+"block": 7,
+"trial": 21,
+"cue": "i love to watch cartoons on saturday morning",
+"T": 1176,
+"dur": 23.52,
+"bin": "trials/t15-20240315-b7-t21.bin.gz",
+"json": "trials/t15-20240315-b7-t21.json",
+"featured": false,
+"iphone": {
+"total_ms": 48.7,
+"enc_ms": 26.6,
+"dec_ms": 22.0
+}
+},
+{
+"id": "t15-20231210-b7-t8",
+"session": "2023-12-10",
+"block": 7,
+"trial": 8,
+"cue": "my daughter likes to play outside in the yard",
+"T": 1305,
+"dur": 26.1,
+"bin": "trials/t15-20231210-b7-t8.bin.gz",
+"json": "trials/t15-20231210-b7-t8.json",
+"featured": false,
+"iphone": {
+"total_ms": 50.1,
+"enc_ms": 27.5,
+"dec_ms": 22.6
+}
+},
+{
+"id": "t15-20231208-b8-t12",
+"session": "2023-12-08",
+"block": 8,
+"trial": 12,
+"cue": "how many miles were you driving today",
+"T": 1063,
+"dur": 21.26,
+"bin": "trials/t15-20231208-b8-t12.bin.gz",
+"json": "trials/t15-20231208-b8-t12.json",
+"featured": false,
+"iphone": {
+"total_ms": 46.7,
+"enc_ms": 27.2,
+"dec_ms": 19.5
+}
+},
+{
+"id": "t15-20240317-b6-t13",
+"session": "2024-03-17",
+"block": 6,
+"trial": 13,
+"cue": "my dad is a potato farmer",
+"T": 991,
+"dur": 19.82,
+"bin": "trials/t15-20240317-b6-t13.bin.gz",
+"json": "trials/t15-20240317-b6-t13.json",
+"featured": false,
+"iphone": {
+"total_ms": 44.9,
+"enc_ms": 27.2,
+"dec_ms": 17.7
+}
+},
+{
+"id": "t15-20240614-b12-t20",
+"session": "2024-06-14",
+"block": 12,
+"trial": 20,
+"cue": "i always wanted to go to school for nursing",
+"T": 1234,
+"dur": 24.68,
+"bin": "trials/t15-20240614-b12-t20.bin.gz",
+"json": "trials/t15-20240614-b12-t20.json",
+"featured": false,
+"iphone": {
+"total_ms": 50.0,
+"enc_ms": 27.3,
+"dec_ms": 22.8
+}
+},
+{
+"id": "t15-20230929-b4-t0",
+"session": "2023-09-29",
+"block": 4,
+"trial": 0,
+"cue": "but bringing the party together will be easier said than done",
+"T": 1286,
+"dur": 25.72,
+"bin": "trials/t15-20230929-b4-t0.bin.gz",
+"json": "trials/t15-20230929-b4-t0.json",
+"featured": false,
+"iphone": {
+"total_ms": 53.5,
+"enc_ms": 27.2,
+"dec_ms": 26.3
+}
+},
+{
+"id": "t15-20240317-b7-t12",
+"session": "2024-03-17",
+"block": 7,
+"trial": 12,
+"cue": "and a very good afternoon to you",
+"T": 712,
+"dur": 14.24,
+"bin": "trials/t15-20240317-b7-t12.bin.gz",
+"json": "trials/t15-20240317-b7-t12.json",
+"featured": false,
+"iphone": {
+"total_ms": 46.7,
+"enc_ms": 27.2,
+"dec_ms": 19.5
+}
+},
+{
+"id": "t15-20250316-b5-t10",
+"session": "2025-03-16",
+"block": 5,
+"trial": 10,
+"cue": "we hope you enjoy your stay",
+"T": 1500,
+"dur": 30.0,
+"bin": "trials/t15-20250316-b5-t10.bin.gz",
+"json": "trials/t15-20250316-b5-t10.json",
+"featured": false,
+"iphone": {
+"total_ms": 45.2,
+"enc_ms": 27.6,
+"dec_ms": 17.6
+}
+},
+{
+"id": "t15-20250110-b8-t2",
+"session": "2025-01-10",
+"block": 8,
+"trial": 2,
+"cue": "do you like to travel",
+"T": 413,
+"dur": 8.26,
+"bin": "trials/t15-20250110-b8-t2.bin.gz",
+"json": "trials/t15-20250110-b8-t2.json",
+"featured": false,
+"iphone": {
+"total_ms": 45.3,
+"enc_ms": 26.5,
+"dec_ms": 18.8
+}
+},
+{
+"id": "t15-20250112-b7-t19",
+"session": "2025-01-12",
+"block": 7,
+"trial": 19,
+"cue": "these guys just want attention",
+"T": 969,
+"dur": 19.38,
+"bin": "trials/t15-20250112-b7-t19.bin.gz",
+"json": "trials/t15-20250112-b7-t19.json",
+"featured": false,
+"iphone": {
+"total_ms": 43.1,
+"enc_ms": 27.1,
+"dec_ms": 16.0
+}
+},
+{
+"id": "t15-20231103-b5-t0",
+"session": "2023-11-03",
+"block": 5,
+"trial": 0,
+"cue": "the frosty air passed through the coat",
+"T": 978,
+"dur": 19.56,
+"bin": "trials/t15-20231103-b5-t0.bin.gz",
+"json": "trials/t15-20231103-b5-t0.json",
+"featured": false,
+"iphone": {
+"total_ms": 54.1,
+"enc_ms": 30.6,
+"dec_ms": 23.5
+}
+},
+{
+"id": "t15-20240315-b7-t14",
+"session": "2024-03-15",
+"block": 7,
+"trial": 14,
+"cue": "my favorite author just released a brand new book",
+"T": 1500,
+"dur": 30.0,
+"bin": "trials/t15-20240315-b7-t14.bin.gz",
+"json": "trials/t15-20240315-b7-t14.json",
+"featured": false,
+"iphone": {
+"total_ms": 48.5,
+"enc_ms": 26.4,
+"dec_ms": 22.1
+}
+},
+{
+"id": "t15-20250330-b13-t13",
+"session": "2025-03-30",
+"block": 13,
+"trial": 13,
+"cue": "how is your boss at your new job",
+"T": 711,
+"dur": 14.22,
+"bin": "trials/t15-20250330-b13-t13.bin.gz",
+"json": "trials/t15-20250330-b13-t13.json",
+"featured": false,
+"iphone": {
+"total_ms": 48.3,
+"enc_ms": 27.4,
+"dec_ms": 20.9
+}
+}
+]
+}

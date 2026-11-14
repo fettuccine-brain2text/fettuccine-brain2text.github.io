@@ -1,0 +1,4 @@
+# kept local: model-building scripts (pending release)
+tools/
+.DS_Store
+__pycache__/

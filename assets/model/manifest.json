@@ -1,0 +1,37 @@
+{
+ "encoder": {
+  "parts": [
+   "encoder.int8.onnx.gz.part0",
+   "encoder.int8.onnx.gz.part1"
+  ],
+  "bytes": 14054429,
+  "raw_bytes": 17629830
+ },
+ "decoder": {
+  "parts": [
+   "decoder_kv.int8.onnx.gz.part0",
+   "decoder_kv.int8.onnx.gz.part1",
+   "decoder_kv.int8.onnx.gz.part2"
+  ],
+  "bytes": 21330438,
+  "raw_bytes": 29353746
+ },
+ "wasm": {
+  "parts": [
+   "ort-wasm-simd-threaded.wasm.gz.part0"
+  ],
+  "bytes": 3659605,
+  "raw_bytes": 14239897
+ },
+ "wasm_gpu": {
+  "parts": [
+   "ort-wasm-simd-threaded.asyncify.wasm.gz.part0"
+  ],
+  "bytes": 6588548,
+  "raw_bytes": 26781914
+ },
+ "model": "FETTUCCINE Whisper-Tiny (openai/whisper-tiny.en backbone), checkpoint val_epoch=1689, LoRA merged, weight-only int8",
+ "tokenizer_bytes": 677522,
+ "total_bytes": 39721994,
+ "version": "cb2b5b377473"
+}
