@@ -40,13 +40,18 @@ export async function initHero(data) {
     return c;
   });
 
+  let shown = null;   // last frame drawn, redrawn after a resize (resizing clears the canvas)
   function size() {
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
+    const w = Math.round(cv.clientWidth * dpr), hgt = Math.round(cv.clientHeight * dpr);
+    if (w === cv.width && hgt === cv.height) return;
+    cv.width = w; cv.height = hgt;
+    if (shown) draw(...shown);
   }
   size(); new ResizeObserver(size).observe(cv);
 
   function draw(k, frac) {
+    shown = [k, frac];
     const t = trials[k], W = cv.width, H = cv.height;
     ctx.fillStyle = '#0d1116'; ctx.fillRect(0, 0, W, H);
     const sx = Math.max(1, Math.round(t.F * frac)), dw = W * (sx / t.F);

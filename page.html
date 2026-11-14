@@ -1,13 +1,25 @@
-<title>FETTUCCINE · Brain-to-text decoding on a phone</title>
+<title>FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="FETTUCCINE (NeurIPS 2026 Spotlight) adapts speech-recognition models to decode attempted speech from intracortical recordings, end to end, in 48 ms per sentence on an iPhone. Try the decoder live in your browser.">
+<meta name="description" content="FETTUCCINE (NeurIPS 2026 Spotlight): end-to-end brain-to-text decoding that runs on an iPhone in 48 ms per sentence. Try the decoder live in your browser.">
+<meta name="author" content="The FETTUCCINE authors">
 <link rel="canonical" href="{{SITE_URL}}">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<meta name="theme-color" content="#0a0e12">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="FETTUCCINE">
+<meta property="og:locale" content="en_US">
 <meta property="og:url" content="{{SITE_URL}}">
 <meta property="og:title" content="FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices">
-<meta property="og:description" content="NeurIPS 2026 Spotlight. End-to-end brain-to-text decoding that runs on an iPhone in 48 ms per sentence.">
-<meta property="og:image" content="{{SITE_URL}}assets/img/og.png">
+<meta property="og:description" content="NeurIPS 2026 Spotlight. End-to-end brain-to-text decoding that runs on an iPhone in 48 ms per sentence. Try it live in your browser.">
+<meta property="og:image" content="{{SITE_URL}}assets/img/social.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FETTUCCINE, NeurIPS 2026 Spotlight: a phone decoding sentences from neural activity, 48 ms per sentence.">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices">
+<meta name="twitter:description" content="NeurIPS 2026 Spotlight. End-to-end brain-to-text decoding that runs on an iPhone in 48 ms per sentence.">
+<meta name="twitter:image" content="{{SITE_URL}}assets/img/social.png">
+<meta name="twitter:image:alt" content="FETTUCCINE, NeurIPS 2026 Spotlight: a phone decoding sentences from neural activity, 48 ms per sentence.">
 <meta name="citation_title" content="FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices">
 <meta name="citation_author" content="McCart, Jonathan D.">
 <meta name="citation_author" content="Deevi, Pranav I.">
@@ -19,9 +31,9 @@
 <meta name="citation_author" content="Pandarinath, Chethan">
 <meta name="citation_publication_date" content="2026">
 <meta name="citation_conference_title" content="The Fortieth Annual Conference on Neural Information Processing Systems">
-<meta name="theme-color" content="#0a0e12">
+<meta name="citation_abstract_html_url" content="{{SITE_URL}}">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"ScholarlyArticle","headline":"FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices","url":"{{SITE_URL}}","datePublished":"2026","isPartOf":{"@type":"Event","name":"NeurIPS 2026"},"keywords":"brain-computer interface, speech neuroprosthesis, brain-to-text, automatic speech recognition, on-device inference","author":[{"@type":"Person","name":"Jonathan D. McCart","affiliation":["Georgia Tech","Emory University"]},{"@type":"Person","name":"Pranav I. Deevi","affiliation":["Georgia Tech","Emory University"]},{"@type":"Person","name":"Mehdi Azabou","affiliation":"Georgia Tech"},{"@type":"Person","name":"Nanda H. Krishna","affiliation":["Mila","Université de Montréal"]},{"@type":"Person","name":"Caleb A. McKinney","affiliation":"Georgia Tech"},{"@type":"Person","name":"Nicholas S. Card","affiliation":"UC Davis"},{"@type":"Person","name":"Sergey D. Stavisky","affiliation":"UC Davis"},{"@type":"Person","name":"Chethan Pandarinath","affiliation":["Georgia Tech","Emory University"]}]}
+{"@context": "https://schema.org", "@type": "ScholarlyArticle", "headline": "FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices", "name": "FETTUCCINE: Fast and efficient brain-to-text decoding on mobile devices", "abstract": "Recent advances in speech neuroprostheses have enabled new communication avenues for people who have lost the ability to speak due to neurological illness or injury. These systems can decode neural activity during attempted speech into text by relying on language priors to achieve high decoding accuracy. This performance currently comes at the cost of using a compute-intensive language modeling stack, presenting a major bottleneck for real-world use. Further, current language models incur highly variable and disruptive inference latencies, limiting communication throughput and preventing users from reliably participating in natural conversation. We introduce FETTUCCINE, an end-to-end brain-to-text framework that leverages the speed and portability of automatic speech recognition (ASR) models to address the aforementioned practical challenges, while achieving usable (<10%) word error rates (WER), efficient adaptation to neural non-stationarities, and reliable performance on mobile devices. When evaluated using publicly available data from an intracortical speech neuroprosthesis user, FETTUCCINE outperforms previous end-to-end methods, achieving as low as 4.39% WER. Most notably, our models successfully run on a commercially-available mobile device with throughput reaching up to 370x real-time, providing the first demonstration of brain-to-text decoding on a mobile device. We also show that our models can be successfully finetuned to extend usable performance to future days. Beyond performance, our approach enables localization of the neural features most relevant for decoding via gradient-based saliency maps, which we show align with well-established physiological priors across different ASR model families. Taken together, our results show that FETTUCCINE overcomes core infrastructural and computational barriers, yielding a new class of portable brain-to-text communication.", "url": "{{SITE_URL}}", "image": "{{SITE_URL}}assets/img/social.png", "datePublished": "2026", "inLanguage": "en", "license": "https://creativecommons.org/licenses/by-nc/4.0/", "keywords": ["brain-computer interface", "speech neuroprosthesis", "brain-to-text", "automatic speech recognition", "on-device inference", "Whisper", "Parakeet"], "isPartOf": {"@type": "PublicationEvent", "name": "The Fortieth Annual Conference on Neural Information Processing Systems (NeurIPS 2026)"}, "author": [{"@type": "Person", "name": "Jonathan D. McCart", "affiliation": [{"@type": "Organization", "name": "Georgia Tech"}, {"@type": "Organization", "name": "Emory University"}]}, {"@type": "Person", "name": "Pranav I. Deevi", "affiliation": [{"@type": "Organization", "name": "Georgia Tech"}, {"@type": "Organization", "name": "Emory University"}]}, {"@type": "Person", "name": "Mehdi Azabou", "affiliation": [{"@type": "Organization", "name": "Georgia Tech"}]}, {"@type": "Person", "name": "Nanda H. Krishna", "affiliation": [{"@type": "Organization", "name": "Mila"}, {"@type": "Organization", "name": "Université de Montréal"}]}, {"@type": "Person", "name": "Caleb A. McKinney", "affiliation": [{"@type": "Organization", "name": "Georgia Tech"}]}, {"@type": "Person", "name": "Nicholas S. Card", "affiliation": [{"@type": "Organization", "name": "UC Davis"}]}, {"@type": "Person", "name": "Sergey D. Stavisky", "affiliation": [{"@type": "Organization", "name": "UC Davis"}]}, {"@type": "Person", "name": "Chethan Pandarinath", "affiliation": [{"@type": "Organization", "name": "Georgia Tech"}, {"@type": "Organization", "name": "Emory University"}]}]}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

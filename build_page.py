@@ -4,6 +4,7 @@ SITE_URL is the published address. It fills the {{SITE_URL}} placeholders (canon
 og:image, JSON-LD), robots.txt and sitemap.xml, and the "Open on your phone" QR code, which the page
 only shows when it is opened at that address.
 """
+import datetime
 import os
 import segno   # pip install segno
 
@@ -48,5 +49,5 @@ open(f"{SITE}/index.html", "w").write(doc)
 open(f"{SITE}/robots.txt", "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}sitemap.xml\n")
 open(f"{SITE}/sitemap.xml", "w").write(
     f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    f"  <url><loc>{SITE_URL}</loc></url>\n</urlset>\n")
+    f"  <url><loc>{SITE_URL}</loc><lastmod>{datetime.date.today().isoformat()}</lastmod></url>\n</urlset>\n")
 print("index.html", len(doc))
