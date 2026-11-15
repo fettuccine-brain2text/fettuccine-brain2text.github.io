@@ -3,7 +3,7 @@
 import { hexToRgb, prefersReduced, sleep } from './util.js';
 
 // the phone keeps its own dark palette in both site themes
-const NEG = hexToRgb('#3d8fd6'), MID = hexToRgb('#0d1116'), POS = hexToRgb('#f2b04a');
+const NEG = hexToRgb('#3d8fd6'), MID = hexToRgb('#000000'), POS = hexToRgb('#f2b04a');
 const LUT = (() => {
   const l = new Uint8ClampedArray(256 * 3);
   for (let i = 0; i < 256; i++) {
@@ -53,13 +53,13 @@ export async function initHero(data) {
   function draw(k, frac) {
     shown = [k, frac];
     const t = trials[k], W = cv.width, H = cv.height;
-    ctx.fillStyle = '#0d1116'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
     const sx = Math.max(1, Math.round(t.F * frac)), dw = W * (sx / t.F);
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(full[k], 0, 0, sx, t.R, 0, 0, dw, H);
-    ctx.fillStyle = '#0d1116';
+    ctx.fillStyle = '#000';
     for (let a = 1; a < 4; a++) ctx.fillRect(0, Math.round(a * H / 4) - 1, W, 2);   // gaps between the 4 arrays
-    if (frac < 1) { ctx.fillStyle = '#f2b04a'; ctx.fillRect(Math.min(W - 2, dw), 0, 2, H); }
+    if (frac < 1) { ctx.fillStyle = '#fff'; ctx.fillRect(Math.min(W - 2, dw), 0, 2, H); }
   }
 
   function message(text, ms) {

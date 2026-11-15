@@ -196,14 +196,14 @@ function drawRaster(t) {
   }
   const oc = document.createElement('canvas'); oc.width = Tn; oc.height = 256; oc.getContext('2d').putImageData(img, 0, 0);
   ctx.imageSmoothingEnabled = true; ctx.drawImage(oc, left, top, w, rh);
-  ctx.font = `500 11px ${T.mono}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.font = `500 11px ${T.ui}`; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   ARRAYS.forEach((a, i) => {
     ctx.fillStyle = T.fg3; ctx.fillText(a.name, left - 10, top + (i + 0.5) * rh / 4);
     if (i) { ctx.fillStyle = T.bg2; ctx.fillRect(left, top + i * rh / 4 - 1, w, 2); }
   });
   const xs = (f) => left + (f / Tn) * w;
   // estimated word regions + envelope
-  for (const [s, e] of t.wb || []) { ctx.fillStyle = T.line; ctx.fillRect(xs(s), ey, xs(e) - xs(s), eh); }
+  for (const [s, e] of t.wb || []) { ctx.fillStyle = T.bg3; ctx.fillRect(xs(s), ey, xs(e) - xs(s), eh); }
   ctx.fillStyle = T.fg3; ctx.fillText('envelope', left - 10, ey + eh / 2);
   const env = t.env; ctx.beginPath();
   for (let i = 0; i < env.length; i++) { const x = left + (i / (env.length - 1)) * w, y = ey + eh - (env[i] / 255) * (eh - 6) - 3; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
@@ -223,7 +223,7 @@ function drawRaster(t) {
       ctx.fillStyle = T.fg; ctx.fillText(wd.w, x, yb);
     });
   }
-  ctx.font = `400 10px ${T.mono}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.font = `400 10px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   const step = tickStep(w, t.meta.dur);
   for (let s = 0; s <= t.meta.dur; s += step) ctx.fillText(s + ' s', xs(s * 50), ey + eh + 6);
 }
@@ -369,8 +369,8 @@ function drawTimeSal() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, cssW, cssH);
   const left = 72, right = 14, top = 8, ph = 160, w = cssW - left - right, Tn = t.meta.T;
   const xs = (f) => left + (f / Tn) * w;
-  for (const [s, e] of t.wb || []) { ctx.fillStyle = T.line; ctx.globalAlpha = 0.7; ctx.fillRect(xs(s), top, xs(e) - xs(s), ph); ctx.globalAlpha = 1; }
-  ctx.font = `500 11px ${T.mono}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const [s, e] of t.wb || []) { ctx.fillStyle = T.bg3; ctx.fillRect(xs(s), top, xs(e) - xs(s), ph); }
+  ctx.font = `500 11px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   ctx.fillText('saliency', left - 10, top + ph / 2);
   if (S.word === 'global') {
     ctx.textAlign = 'center'; ctx.fillText('Pick a word or the whole sentence to see when the decoder looked.', left + w / 2, top + ph / 2);
@@ -399,7 +399,7 @@ function drawTimeSal() {
     const lane = x - tw / 2 < lanes[0] + 4 ? 1 : 0; lanes[lane] = x + tw / 2;
     ctx.fillStyle = i === sel ? T.accent : sel < 0 ? T.fg : T.fg3; ctx.fillText(wd.w, x, top + 18 + lane * 16);
   });
-  ctx.font = `400 10px ${T.mono}`; ctx.fillStyle = T.fg3; ctx.textBaseline = 'top';
+  ctx.font = `400 10px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textBaseline = 'top';
   const step = tickStep(w, t.meta.dur);
   for (let s = 0; s <= t.meta.dur; s += step) ctx.fillText(s + ' s', xs(s * 50), top + ph + 8);
 }

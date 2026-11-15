@@ -9,6 +9,7 @@ export function pipeline() {
   const inner = h('div', { style: 'min-width:720px' }); box.innerHTML = ''; box.append(inner);
   const W = 1060, H = 262;
   const s = svg(inner, W, H, 'Cascaded decoder compared with FETTUCCINE');
+  s.style.width = '100%';   // scale the fixed-size drawing to the card
   el('defs', {}, s).innerHTML = '<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--fg-3)"/></marker>';
   const box_ = (x, y, w, hh, title, sub, kind) => {
     const trained = kind === 'trained', lora = kind === 'lora';
@@ -23,11 +24,11 @@ export function pipeline() {
   const arrow = (x1, y, x2) => el('line', { x1, y1: y, x2: x2 - 3, y2: y, style: 'stroke:var(--fg-3);stroke-width:1.5', 'marker-end': 'url(#arr)' }, s);
   // row labels
   const rows = [
-    { y: 34, label: 'CASCADE', note: 'workstation · ~320 GB · up to 16 s per sentence', color: 'var(--cascade)' },
+    { y: 34, label: 'Cascade', note: 'workstation · ~320 GB · up to 16 s per sentence', color: 'var(--cascade)' },
     { y: 176, label: 'FETTUCCINE', note: 'phone · 209 MB · 48 ms per sentence', color: 'var(--accent)' },
   ];
   for (const r of rows) {
-    el('text', { x: 0, y: r.y - 12, style: `fill:${r.color};font-size:11px;letter-spacing:.1em`, text: r.label }, s);
+    el('text', { x: 0, y: r.y - 12, style: `fill:${r.color};font-size:13px;font-weight:600`, text: r.label }, s);
     el('text', { x: W, y: r.y - 12, 'text-anchor': 'end', text: r.note }, s);
   }
   const bh = 74, y1 = 34, y2 = 176;
@@ -143,11 +144,11 @@ export function initAugment(A) {
     const orig = segments();
     const augF = aug.seg.reduce((a, sg) => a + sg.len, 0);
     const scaleF = Math.max(F, augF);
-    ctx.font = `500 11px ${T.mono}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.font = `500 11px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText('original', 0, 40 + hh / 2); ctx.fillText('augmented', 0, 168 + hh / 2);
     render(orig, F, 40, hh, T, lut, x0, w, scaleF);
     render(aug.seg, augF, 168, hh, T, lut, x0, w, scaleF);
-    ctx.font = `400 10px ${T.mono}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.font = `400 10px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     const st = (w / (scaleF / 50)) * 2 >= 40 ? 2 : 4;
     for (let sec = 0; sec <= scaleF / 50; sec += st) ctx.fillText(sec + ' s', x0 + (sec * 50 / scaleF) * w, 168 + hh + 4);
   }

@@ -74,7 +74,7 @@ export function tokens() {
     bg: g('--bg'), bg2: g('--bg-2'), bg3: g('--bg-3'), line: g('--line'), line2: g('--line-2'),
     fg: g('--fg'), fg2: g('--fg-2'), fg3: g('--fg-3'), accent: g('--accent'), accent2: g('--accent-2'),
     whisper: g('--whisper'), parakeet: g('--parakeet'), cascade: g('--cascade'), err: g('--err'),
-    pos: g('--pos'), neg: g('--neg'), mono: g('--font-mono'), display: g('--font-display'),
+    pos: g('--pos'), neg: g('--neg'), heat: g('--heat'), heat2: g('--heat-2'), ui: g('--font-body'), display: g('--font-display'),
   };
 }
 export function hexToRgb(c) {
@@ -98,9 +98,9 @@ export function divergingLUT(T) {
 }
 // sequential saliency ramp: surface -> deep accent -> accent -> light accent
 export function seqColor(T, v) {
-  const s = mix(hexToRgb(T.bg3), hexToRgb(T.accent), 0.06), a = hexToRgb(T.accent), b = hexToRgb(T.accent2);
+  const s = mix(hexToRgb(T.bg3), hexToRgb(T.heat), 0.06), a = hexToRgb(T.heat), b = hexToRgb(T.heat2);
   const isDark = luminance(hexToRgb(T.bg)) < 0.3;
-  const top = isDark ? mix(b, [255, 250, 235], 0.35) : mix(a, [90, 40, 0], 0.45);
+  const top = isDark ? mix(b, [255, 250, 235], 0.35) : mix(a, [120, 50, 0], 0.5);
   let c;
   if (v < 0.55) c = mix(s, a, v / 0.55); else c = mix(a, top, (v - 0.55) / 0.45);
   return `rgb(${c.map((x) => Math.round(x)).join(',')})`;

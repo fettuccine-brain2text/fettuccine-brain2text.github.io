@@ -97,19 +97,15 @@ function drawMemory(M, box) {
   const W = fitW(box, 620), H = 420, m = { l: 56, r: 24, t: 16, b: 48 };
   const s = svg(box, W, H, 'Word error rate versus peak memory');
   const x = logs(0.1, 1000, m.l, W - m.r), y = lin(4, 12.5, H - m.b, m.t);
-  el('rect', { x: m.l, y: y(10), width: x(3) - m.l, height: H - m.b - y(10), style: 'fill:var(--shade)' }, s);
-  el('text', { x: x(3) - 8, y: H - m.b - 10, 'text-anchor': 'end', style: 'fill:var(--accent)', text: 'phone-ready: < 3 GB and < 10% WER' }, s);
   const g = el('g', { class: 'grid' }, s);
   for (const t of [0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? t * 1000 + ' MB' : t + ' GB' }, s); }
   for (const t of [4, 6, 8, 10, 12]) { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 10, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
-  el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'peak memory during inference (log scale)' }, s);
+  el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'peak memory (log scale)' }, s);
   el('text', { x: 14, y: (m.t + H - m.b) / 2, transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})`, 'text-anchor': 'middle', text: 'word error rate' }, s);
   for (const p of M) {
     const cx = x(p.mem_gb), cy = y(p.wer);
     const color = p.kind === 'ours' ? (p.family === 'parakeet' ? C.parakeet : C.whisper) : (p.label === 'GRU' ? C.cascade : 'var(--fg-3)');
-    const mk = p.kind === 'ours'
-      ? el('circle', { cx, cy, r: 6, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s)
-      : el('rect', { x: cx - 5.5, y: cy - 5.5, width: 11, height: 11, rx: 2, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s);
+    const mk = el('circle', { cx, cy, r: 5.5, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s);
     const [dx, dy, anchor] = p.lab || [10, 4, 'start'];
     el('text', { x: cx + dx, y: cy + dy, 'text-anchor': anchor, class: p.kind === 'ours' ? 't1' : 't2', text: p.name }, s);
     hover(mk, () => `<b>${p.name}</b><br>${p.wer.toFixed(2)}% WER · ${p.mem_gb < 1 ? Math.round(p.mem_gb * 1024) + ' MB' : p.mem_gb.toFixed(1) + ' GB'}<br>${p.note}`);
