@@ -1,35 +1,36 @@
 [hidden] { display: none !important; }
 /* FETTUCCINE project page.
    Quiet layout: system font, centred section headings, one rounded card per figure,
-   one blue accent for actions. The light theme is a soft off-white, not paper white.
+   one blue accent for actions. Follows the device's theme, dark otherwise; the light theme is a soft off-white.
    Data colours follow the paper's figures: Whisper blue, Parakeet green, a red-blue
    map for neural activity and a magma map for saliency. */
 
 :root {
-  --bg: #f4f4f1;
-  --bg-2: #ebebe7;            /* cards */
-  --bg-3: #dfdfda;            /* controls inside cards */
+  /* dark unless the device asks for light (or the viewer picks it with the toggle) */
+  --bg: #0b0b0c;
+  --bg-2: #18181a;            /* cards */
+  --bg-3: #2a2a2d;            /* controls inside cards */
   --card-bg: var(--bg-2);
   --card-border: 0;
-  --seg-on: #f8f8f6;
-  --tip-bg: #fafaf8;
-  --node-frozen: #f4f4f1;
-  --line: #d3d3cd;
-  --line-2: #b9b9b3;
-  --fg: #262628;
-  --fg-2: #55555a;
-  --fg-3: #6e6e73;
-  --accent: #2d63c0;
-  --accent-2: #2557ab;
-  --accent-ink: #ffffff;
-  --accent-wash: rgba(45, 99, 192, 0.10);
-  --ok: #2f8a55;
-  --whisper: #3466ad;
-  --parakeet: #2f8a55;
-  --cascade: #9a3a3a;
-  --err: #b8412f;
-  --pos: #bd5348;             /* neural activity: above mean (paper: RdBu) */
-  --neg: #4672b2;             /* below mean */
+  --seg-on: #3a3a3e;
+  --tip-bg: #202023;
+  --node-frozen: #222225;
+  --line: #2f2f32;
+  --line-2: #4a4a4e;
+  --fg: #ececee;
+  --fg-2: #a4a4a9;
+  --fg-3: #8a8a8f;
+  --accent: #6aa8ff;          /* soft blue */
+  --accent-2: #86b8ff;
+  --accent-ink: #0b1626;
+  --accent-wash: rgba(106, 168, 255, 0.13);
+  --ok: #6bb58a;
+  --whisper: #7ea6d8;
+  --parakeet: #6bb58a;
+  --cascade: #c56a62;
+  --err: #ee7d70;
+  --pos: #d9776c;             /* neural activity: above mean (paper: RdBu) */
+  --neg: #6f9bd6;             /* below mean */
   --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-code: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -39,27 +40,27 @@
   --head-margin: auto;
   --h-track: -0.03em;
   --sec-gap: clamp(88px, 11vw, 136px);
-  color-scheme: light;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b0b0c; --bg-2: #18181a; --bg-3: #2a2a2d; --seg-on: #3a3a3e; --tip-bg: #202023; --node-frozen: #222225;
-    --line: #2f2f32; --line-2: #4a4a4e;
-    --fg: #ececee; --fg-2: #a4a4a9; --fg-3: #8a8a8f;
-    --accent: #6aa8ff; --accent-2: #86b8ff; --accent-ink: #0b1626; --accent-wash: rgba(106, 168, 255, 0.13);
-    --ok: #6bb58a; --whisper: #7ea6d8; --parakeet: #6bb58a; --cascade: #c56a62; --err: #ee7d70;
-    --pos: #d9776c; --neg: #6f9bd6;
-    color-scheme: dark;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f4f1; --bg-2: #ebebe7; --bg-3: #dfdfda; --seg-on: #f8f8f6; --tip-bg: #fafaf8; --node-frozen: #f4f4f1;
+    --line: #d3d3cd; --line-2: #b9b9b3;
+    --fg: #262628; --fg-2: #55555a; --fg-3: #6e6e73;
+    --accent: #2d63c0; --accent-2: #2557ab; --accent-ink: #ffffff; --accent-wash: rgba(45, 99, 192, 0.10);
+    --ok: #2f8a55; --whisper: #3466ad; --parakeet: #2f8a55; --cascade: #9a3a3a; --err: #b8412f;
+    --pos: #bd5348; --neg: #4672b2;
+    color-scheme: light;
   }
 }
-:root[data-theme="dark"] {
-  --bg: #0b0b0c; --bg-2: #18181a; --bg-3: #2a2a2d; --seg-on: #3a3a3e; --tip-bg: #202023; --node-frozen: #222225;
-  --line: #2f2f32; --line-2: #4a4a4e;
-  --fg: #ececee; --fg-2: #a4a4a9; --fg-3: #8a8a8f;
-  --accent: #6aa8ff; --accent-2: #86b8ff; --accent-ink: #0b1626; --accent-wash: rgba(106, 168, 255, 0.13);
-  --ok: #6bb58a; --whisper: #7ea6d8; --parakeet: #6bb58a; --cascade: #c56a62; --err: #ee7d70;
-  --pos: #d9776c; --neg: #6f9bd6;
-  color-scheme: dark;
+:root[data-theme="light"] {
+  --bg: #f4f4f1; --bg-2: #ebebe7; --bg-3: #dfdfda; --seg-on: #f8f8f6; --tip-bg: #fafaf8; --node-frozen: #f4f4f1;
+  --line: #d3d3cd; --line-2: #b9b9b3;
+  --fg: #262628; --fg-2: #55555a; --fg-3: #6e6e73;
+  --accent: #2d63c0; --accent-2: #2557ab; --accent-ink: #ffffff; --accent-wash: rgba(45, 99, 192, 0.10);
+  --ok: #2f8a55; --whisper: #3466ad; --parakeet: #2f8a55; --cascade: #9a3a3a; --err: #b8412f;
+  --pos: #bd5348; --neg: #4672b2;
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }

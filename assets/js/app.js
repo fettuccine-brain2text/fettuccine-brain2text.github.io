@@ -4,14 +4,14 @@ import { initDemo } from './demo.js';
 import { pipeline, initAugment } from './method.js';
 import { latencyChart, initRace, memoryChart, participantsChart, bestTable, zooTable, initAdaptation, recipeChart } from './charts.js';
 
-// ---- theme: system by default, explicit choice stored per viewer ----
+// ---- theme: the device's setting, dark if it has none; the toggle's choice is stored per viewer
+// (and applied before first paint by the inline script in <head>) ----
 const root = document.documentElement;
-try { const t = localStorage.getItem('fettuccine-theme'); if (t) root.dataset.theme = t; } catch (e) { /* storage unavailable */ }
 const fire = () => window.dispatchEvent(new Event('themechange'));
 document.getElementById('themeBtn').addEventListener('click', () => {
-  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : !matchMedia('(prefers-color-scheme: light)').matches;
-  root.dataset.theme = dark ? 'light' : 'dark';
-  try { localStorage.setItem('fettuccine-theme', root.dataset.theme); } catch (e) { /* ignore */ }
+  const light = root.dataset.theme ? root.dataset.theme === 'light' : matchMedia('(prefers-color-scheme: light)').matches;
+  root.dataset.theme = light ? 'dark' : 'light';
+  try { localStorage.setItem('fettuccine-theme', root.dataset.theme); } catch (e) { /* storage unavailable */ }
   fire();
 });
 matchMedia('(prefers-color-scheme: light)').addEventListener('change', fire);
