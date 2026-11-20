@@ -64,8 +64,6 @@ function setEngine(state, text, detail) {
   $('engineText').textContent = text;
   $('engineChip').title = detail || '';
   $('loadModelBtn').hidden = state !== 'idle';
-  // "saved" tag on the decode buttons until the live model runs here
-  for (const id of ['decodeMode', 'lesionMode']) $(id).hidden = state === 'live';
 }
 async function modelCached(man) {
   try {
@@ -150,9 +148,9 @@ async function initEngine() {
   }
 }
 function savedNote() {
-  if (S.engine === 'loading') return 'Saved output. The model is still downloading.';
-  if (S.engine === 'idle') return 'Saved output. Download the model to run it here.';
-  return 'Saved output.';
+  if (S.engine === 'loading') return 'saved output while the model downloads';
+  if (S.engine === 'idle') return 'saved output; download the model to run it here';
+  return 'saved output';
 }
 function onWorker(e) {
   const m = e.data, job = S.jobs.get(m.jobId); if (!job) return;
@@ -203,26 +201,12 @@ function drawRaster(t) {
   });
   const xs = (f) => left + (f / Tn) * w;
   // estimated word regions + envelope
+  // estimated word boundaries (shaded), placed where the envelope's activity is highest (paper, Sec. 3)
   for (const [s, e] of t.wb || []) { ctx.fillStyle = T.bg3; ctx.fillRect(xs(s), ey, xs(e) - xs(s), eh); }
   ctx.fillStyle = T.fg3; ctx.fillText('envelope', left - 10, ey + eh / 2);
   const env = t.env; ctx.beginPath();
   for (let i = 0; i < env.length; i++) { const x = left + (i / (env.length - 1)) * w, y = ey + eh - (env[i] / 255) * (eh - 6) - 3; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
   ctx.strokeStyle = T.fg2; ctx.lineWidth = 1.5; ctx.stroke();
-  // decoded words at their saliency peaks
-  if (S.showPeaks && t.words) {
-    ctx.font = `500 13px ${T.display}`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    let lastRight = [-1e9, -1e9];
-    t.words.forEach((wd, i) => {
-      const x = xs(t.sal_peak[i]);
-      ctx.globalAlpha = 0.7; ctx.fillStyle = T.accent; ctx.fillRect(x - 0.5, top, 1, rh + 12 + eh); ctx.globalAlpha = 1;
-      const tw = ctx.measureText(wd.w).width + 10;
-      const lane = x - tw / 2 < lastRight[0] + 2 ? 1 : 0;       // stagger labels that would collide
-      const yb = ey + eh - 3 - lane * 20;
-      lastRight[lane] = x + tw / 2; if (lane === 0) lastRight[1] = -1e9;
-      ctx.fillStyle = T.bg2; ctx.fillRect(x - tw / 2, yb - 17, tw, 18);
-      ctx.fillStyle = T.fg; ctx.fillText(wd.w, x, yb);
-    });
-  }
   ctx.font = `400 10px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
   const step = tickStep(w, t.meta.dur);
   for (let s = 0; s <= t.meta.dur; s += step) ctx.fillText(s + ' s', xs(s * 50), ey + eh + 6);
@@ -236,7 +220,6 @@ function tickStep(wPx, dur) {
 // ------------------------------------------------------------------ demo
 function renderTrialList() {
   const list = $('trialList'); list.innerHTML = '';
-  $('trialCount').textContent = S.index.trials.length;
   for (const m of S.index.trials) {
     const b = h('button', { class: 'trial', type: 'button', role: 'listitem', 'aria-pressed': 'false', 'data-id': m.id },
       h('span', { class: 'meta' }, h('span', {}, m.session), h('span', {}, m.dur.toFixed(1) + ' s')),
@@ -251,12 +234,7 @@ async function select(id) {
   $('cueText').textContent = meta.cue; $('lesionCue').textContent = meta.cue;
   $('outText').innerHTML = '<span class="placeholder">Press decode</span>';
   $('lesionOut').innerHTML = '<span class="placeholder">—</span>'; $('lesionNote').textContent = '';
-  ['rTotal', 'rWer'].forEach((k) => ($(k).textContent = '—'));
-  $('rSplit').innerHTML = '&nbsp;'; $('rSplit').title = '';
-  $('rPhone').textContent = meta.iphone ? fmtMs(meta.iphone.total_ms) : '—';
-  $('rPhoneSub').textContent = meta.iphone ? 'same model' : 'not benchmarked';
-  $('speakBtn').disabled = true; $('decodeNote').textContent = '';
-  S.showPeaks = false;
+  $('speakBtn').disabled = true; $('decodeNote').textContent = ''; $('decodeNote').title = '';
   const t = await loadTrial(meta); S.cur = t;
   drawRaster(t);
   S.word = 'sentence'; renderWordChips(); renderArrays(); drawTimeSal();
@@ -290,22 +268,17 @@ async function decodeCurrent() {
   }
   const hyp = normalize(text);
   const { errors, n } = renderDiff(out, t.meta.cue, hyp);
+  const errs = `${errors} of ${n} words wrong`, note = $('decodeNote');
   if (encMs !== undefined) {
-    const total = encMs + decMs;
-    $('rTotal').textContent = fmtMs(total);
-    $('rSplit').textContent = `on your ${S.where || 'device'}`;
-    $('rSplit').title = `encode ${fmtMs(encMs)} + ${steps} tokens ${fmtMs(decMs)}`;
-    $('decodeNote').textContent = hyp === normalize(t.decode.text) ? '' : 'Differs slightly from the saved output (a near tie).';
+    // time in this browser only; see the note at the bottom of the page
+    note.textContent = `${errs} · ${fmtMs(encMs + decMs)} on your ${S.where || 'device'}` + (hyp === normalize(t.decode.text) ? '' : ' · differs slightly from the saved output (a near tie)');
+    note.title = `encode ${fmtMs(encMs)} + ${steps} tokens ${fmtMs(decMs)}`;
   } else {
     S.playedSaved = true;
-    $('rTotal').textContent = '—';
-    $('rSplit').textContent = 'not run here';
-    $('decodeNote').textContent = savedNote();
+    note.textContent = `${errs} · ${savedNote()}`; note.title = '';
   }
-  $('rWer').textContent = `${errors} / ${n}`;
   $('speakBtn').disabled = !('speechSynthesis' in window);
   S.lastText = hyp;
-  S.showPeaks = hyp === normalize(t.decode.text); drawRaster(t);
   btn.disabled = false;
 }
 

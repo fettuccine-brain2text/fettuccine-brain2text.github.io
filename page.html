@@ -4,8 +4,8 @@
 <meta name="author" content="The FETTUCCINE authors">
 <link rel="canonical" href="{{SITE_URL}}">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="FETTUCCINE">
 <meta property="og:locale" content="en_US">
@@ -47,8 +47,8 @@
     <ul>
       <li><a href="#demo">Demo</a></li>
       <li><a href="#method">Method</a></li>
-      <li><a href="#inside">Interpretability</a></li>
       <li><a href="#results">Results</a></li>
+      <li><a href="#inside">Interpretability</a></li>
       <li><a href="#cite">Cite</a></li>
     </ul>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">
@@ -114,18 +114,14 @@
     <div class="wrap">
       <div class="sec-head">
         <h2>Live demo</h2>
-        <p>Decode recorded sentences with the model running in your browser.</p>
+        <p>Pick a sentence that participant T15 attempted to say and decode it from the recorded neural activity. The model runs in your browser.</p>
         <a class="qr" id="qr" hidden><span class="qr-code"></span><span>Open on<br>your phone</span></a>
       </div>
 
-      <div class="demo">
-        <div class="panel">
-          <div class="panel-head"><span class="label">Sentences</span><span class="label" id="trialCount"></span></div>
-          <div class="trials" id="trialList" role="list"></div>
-        </div>
-
-        <div class="panel" style="min-width:0">
-          <div class="panel-head">
+      <div class="card demo">
+        <div class="trials" id="trialList" role="list" aria-label="Recorded sentences"></div>
+        <div class="demo-main">
+          <div class="toolbar">
             <div class="engine" id="engine">
               <span class="chip" id="engineChip"><i></i><span id="engineText">Model not downloaded</span></span>
               <button class="icon-btn" id="loadModelBtn" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Download</span></button>
@@ -135,21 +131,16 @@
               <button type="button" data-feat="tx" aria-pressed="false">Threshold crossings</button>
             </div>
           </div>
-          <div class="raster-wrap"><canvas id="raster" height="300" aria-label="Neural activity for the selected sentence"></canvas></div>
+          <div class="raster-wrap"><canvas id="raster" height="300" aria-label="Neural activity for the selected sentence, with the neural envelope and estimated word boundaries"></canvas></div>
           <div class="progress" id="loadBar" hidden><i></i></div>
-          <div class="panel-body demo-io">
-            <div class="cue-line"><span class="label">Cue</span><span class="cue-text" id="cueText"></span></div>
-            <div class="cue-line"><span class="label">Decoded</span><span class="out-text" id="outText" aria-live="polite"><span class="placeholder">Press decode</span></span></div>
+          <div class="demo-io">
+            <div class="cue-line"><span class="k">Cue</span><span class="cue-text" id="cueText"></span></div>
+            <div class="cue-line"><span class="k">Decoded</span><span class="out-text" id="outText" aria-live="polite"><span class="placeholder">Press decode</span></span></div>
             <div class="decode-row">
-              <button class="btn primary" id="decodeBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span><span class="mode" id="decodeMode">saved</span></button>
+              <button class="btn primary" id="decodeBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span></button>
               <button class="icon-btn" id="speakBtn" type="button" disabled title="Read the decoded sentence aloud"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 010 6M18 6.5a7.5 7.5 0 010 11"/></svg>Speak</button>
               <span class="note" id="decodeNote"></span>
             </div>
-          </div>
-          <div class="readouts">
-            <div class="readout"><span class="label">This device</span><span class="v hi num" id="rTotal">—</span><span class="s" id="rSplit">&nbsp;</span></div>
-            <div class="readout"><span class="label">iPhone 15 Pro Max</span><span class="v num" id="rPhone">—</span><span class="s" id="rPhoneSub">same model</span></div>
-            <div class="readout"><span class="label">Word errors</span><span class="v num" id="rWer">—</span><span class="s">vs. the cue</span></div>
           </div>
         </div>
       </div>
@@ -159,36 +150,142 @@
   <section class="block" id="method">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Method</h2>
-        <p>We replace a speech recognizer’s audio input layers with a small neural adapter and fine-tune its encoder with LoRA. There is no separate language model.</p>
+        <h2>How it works</h2>
+        <p>Most brain-to-text decoders predict phonemes, then search over them with large language models, which needs a workstation. FETTUCCINE instead reuses a pretrained speech recognizer. A small Neural Adapter turns neural activity into input the recognizer can read, and LoRA tunes its encoder.</p>
       </div>
 
-      <div class="panel">
-        <div class="panel-head"><span class="label">Cascade vs. end to end</span>
-          <div class="legend"><span><i class="sq" style="background:var(--accent)"></i>trained</span><span><i class="sq" style="background:var(--line-2)"></i>frozen</span></div></div>
-        <div class="panel-body" id="pipeDiagram"></div>
-      </div>
-
-      <div class="two method-row">
-        <div class="panel">
-          <div class="panel-head">
-            <span class="label">Word-level augmentation</span>
-            <button class="icon-btn" id="augBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg>New sample</button>
+      <figure class="card fig">
+        <div class="fig-bar">
+          <div class="seg" role="group" aria-label="Speech recognizer">
+            <button type="button" data-arch="whisper" aria-pressed="true">Whisper</button>
+            <button type="button" data-arch="parakeet" aria-pressed="false">Parakeet</button>
           </div>
-          <div class="panel-body aug">
-            <div class="seg" role="group" aria-label="Augmentation">
-              <button type="button" data-aug="warp" aria-pressed="true" title="Stretch each word ×0.5–2 and each pause ×0.3–3">Warp</button>
-              <button type="button" data-aug="gain" aria-pressed="true" title="Scale each word’s activity by a random gain">Gain</button>
-              <button type="button" data-aug="crop" aria-pressed="false" title="Keep a run of words and trim the transcript to match">Crop</button>
+          <div class="legend"><span><i class="sw trained"></i>trained</span><span><i class="sw frozen"></i>frozen</span></div>
+        </div>
+        <div class="arch" id="arch">
+          <div class="node io"><b>Neural activity</b><small>256 electrodes · 50 Hz</small></div>
+          <i class="arr" aria-hidden="true"></i>
+          <div class="node trained"><b>Neural Adapter</b><small data-a="adapter"></small></div>
+          <i class="arr" aria-hidden="true"></i>
+          <div class="backbone">
+            <div class="bb-nodes">
+              <div class="node frozen"><b data-a="enc"></b><small data-a="encSub"></small><span class="lora">+ LoRA</span></div>
+              <i class="arr" aria-hidden="true"></i>
+              <div class="node frozen"><b data-a="dec"></b><small data-a="decSub"></small></div>
             </div>
-            <canvas id="augCanvas" height="260" aria-label="Original and augmented neural activity"></canvas>
+            <div class="bb-label" data-a="bb"></div>
+          </div>
+          <i class="arr" aria-hidden="true"></i>
+          <div class="node io out"><b>“how are you doing”</b><small>text</small></div>
+        </div>
+        <figcaption data-a="cap"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" id="augment">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Word-level augmentation</h2>
+        <p>People stretch, rush and stress individual words. To teach the model this variation, we estimate where each word falls in the neural activity, then warp, scale or crop words during training.</p>
+      </div>
+
+      <figure class="card fig">
+        <div class="fig-bar">
+          <div class="seg" role="group" aria-label="Augmentation">
+            <button type="button" data-aug="warp" aria-pressed="true" title="Stretch each word ×0.5–2 and each pause ×0.3–3">Warp</button>
+            <button type="button" data-aug="gain" aria-pressed="true" title="Scale each word’s activity by a random gain (s.d. 0.6)">Gain</button>
+            <button type="button" data-aug="crop" aria-pressed="false" title="Keep a run of words and trim the transcript to match">Crop</button>
+          </div>
+          <button class="icon-btn" id="augBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h11l-3-3M20 17H9l3 3"/></svg>New sample</button>
+        </div>
+        <canvas id="augCanvas" height="260" aria-label="Original and augmented neural activity"></canvas>
+      </figure>
+
+      <details class="more">
+        <summary>What each part contributes</summary>
+        <div id="recipeChart"></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="block" id="results">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Accuracy</h2>
+        <p>Our best models beat previous end-to-end decoders for both participants, with a fraction of the parameters. Cascades that search with a language model remain ahead for T12.</p>
+      </div>
+
+      <figure class="card fig">
+        <div class="fig-bar">
+          <div class="legend"><span><i style="background:var(--whisper)"></i>FETTUCCINE · Whisper</span><span><i style="background:var(--parakeet)"></i>FETTUCCINE · Parakeet</span><span><i style="background:var(--fg-3)"></i>end-to-end baselines</span><span><i class="dash"></i>best cascade</span></div>
+        </div>
+        <div class="pair" id="ppChart"></div>
+      </figure>
+
+      <div class="table-wrap" id="bestTable"></div>
+      <details class="more">
+        <summary>All models</summary>
+        <div class="table-wrap" id="zooTable"></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="block" id="latency">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Latency</h2>
+        <p>Without a language-model search, decoding time stays low and steady. The cascade’s search usually takes a fraction of a second, but sometimes more than ten.</p>
+      </div>
+
+      <figure class="card fig">
+        <div id="latChart"></div>
+        <div class="race-head">
+          <button class="icon-btn" id="raceBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Play</button>
+          <span>The same ten sentences, decoded one after another in real time</span>
+        </div>
+        <div class="race" id="race"></div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" id="mobile">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>On a phone</h2>
+        <p>Every variant runs on an iPhone 15 Pro Max, in 209 to 676 MB. The cascade needs about 320 GB.</p>
+      </div>
+
+      <figure class="card fig">
+        <div class="fig-bar">
+          <div class="legend"><span><i style="background:var(--whisper)"></i>FETTUCCINE · Whisper</span><span><i style="background:var(--parakeet)"></i>FETTUCCINE · Parakeet</span><span><i style="background:var(--fg-3)"></i>other methods</span></div>
+        </div>
+        <div id="memChart"></div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" id="adaptation">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>New recording days</h2>
+        <p>Neural signals drift from day to day, so accuracy drops on days the model has not seen. About 15 minutes of data from the new day brings it back, and pretraining on more days helps.</p>
+      </div>
+
+      <figure class="card fig">
+        <div class="fig-bar">
+          <div class="seg" role="group" aria-label="Backbone">
+            <button type="button" data-bb="whisper" aria-pressed="true">Whisper Base</button>
+            <button type="button" data-bb="parakeet" aria-pressed="false">Parakeet EOU</button>
           </div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><span class="label">Ablations · validation WER</span></div>
-          <div class="panel-body"><div id="recipeChart"></div></div>
+        <div class="gallery" id="ftGallery">
+          <div id="ftBars"></div>
+          <div id="ftMinutes"></div>
+          <div id="ftScaling"></div>
         </div>
-      </div>
+        <div class="dots" id="ftDots" role="tablist" aria-label="Charts"><button type="button" aria-label="Zero-shot vs. finetuned"></button><button type="button" aria-label="Minutes of new-day data"></button><button type="button" aria-label="Days in pretraining"></button></div>
+      </figure>
     </div>
   </section>
 
@@ -196,114 +293,45 @@
     <div class="wrap">
       <div class="sec-head">
         <h2>Interpretability</h2>
-        <p>Saliency maps show which electrodes and time points each word relies on. Silence some electrodes and decode again to test it.</p>
+        <p>Gradient saliency shows which electrodes and moments each decoded word relies on. Silencing the most salient electrodes hurts accuracy far more than silencing random ones.</p>
       </div>
 
-      <div class="panel">
-        <div class="panel-head">
+      <figure class="card fig">
+        <div class="fig-bar">
           <div class="word-chips" id="wordChips" role="group" aria-label="Choose a decoded word"></div>
-          <div class="cbar"><span>low</span><i id="cbarSwatch"></i><span>high saliency</span></div>
+          <div class="cbar"><span>low</span><i id="cbarSwatch"></i><span>high</span></div>
         </div>
-        <div class="panel-body sal">
+        <div class="sal">
           <div class="arrays" id="arrays"></div>
           <div style="min-width:0"><canvas id="timeSal" height="200" aria-label="Saliency of each word over time"></canvas></div>
         </div>
-      </div>
+      </figure>
 
-      <div class="lesion">
-        <div class="panel">
-          <div class="panel-head">
-            <span class="label">Silence electrodes</span>
-            <div class="seg" role="group" aria-label="Which electrodes to silence">
-              <button type="button" data-order="top" aria-pressed="true">Most salient</button>
-              <button type="button" data-order="rand" aria-pressed="false">Random</button>
-              <button type="button" data-order="custom" aria-pressed="false">Pick on the grid</button>
-            </div>
+      <h3 class="sub-head">Silence electrodes and decode again</h3>
+      <figure class="card fig lesion">
+        <div class="lesion-ctl">
+          <div class="seg" role="group" aria-label="Which electrodes to silence">
+            <button type="button" data-order="top" aria-pressed="true">Most salient</button>
+            <button type="button" data-order="rand" aria-pressed="false">Random</button>
+            <button type="button" data-order="custom" aria-pressed="false">Pick on the grid</button>
           </div>
-          <div class="panel-body demo-io">
-            <div class="slider-row" id="kRow">
-              <span class="label">Count</span>
-              <input type="range" id="kSlider" min="0" max="9" step="1" value="5" aria-label="Number of electrodes to silence">
-              <span class="kbadge num" id="kBadge">16 / 256</span>
-            </div>
-            <div class="cue-line"><span class="label">Cue</span><span class="cue-text" id="lesionCue"></span></div>
-            <div class="cue-line"><span class="label">Decoded</span><span class="out-text" id="lesionOut"><span class="placeholder">—</span></span></div>
-            <div class="decode-row">
-              <button class="btn primary" id="lesionBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span><span class="mode" id="lesionMode">saved</span></button>
-              <button class="icon-btn" id="lesionReset" type="button">Reset</button>
-              <span class="note" id="lesionNote"></span>
-            </div>
+          <div class="slider-row" id="kRow">
+            <input type="range" id="kSlider" min="0" max="9" step="1" value="5" aria-label="Number of electrodes to silence">
+            <span class="kbadge num" id="kBadge">16 / 256</span>
+          </div>
+          <div class="cue-line"><span class="k">Cue</span><span class="cue-text" id="lesionCue"></span></div>
+          <div class="cue-line"><span class="k">Decoded</span><span class="out-text" id="lesionOut"><span class="placeholder">—</span></span></div>
+          <div class="decode-row">
+            <button class="btn primary" id="lesionBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg><span>Decode</span></button>
+            <button class="icon-btn" id="lesionReset" type="button">Reset</button>
+            <span class="note" id="lesionNote"></span>
           </div>
         </div>
-        <div class="panel">
-          <div class="panel-head"><span class="label">Word error rate vs. electrodes silenced</span>
-            <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>most salient first</span><span><i class="ln" style="background:var(--fg-3)"></i>random</span></div></div>
-          <div class="panel-body"><div id="ablChart"></div></div>
+        <div>
+          <div class="legend"><span><i class="ln" style="background:var(--accent)"></i>most salient first</span><span><i class="ln dashed"></i>random</span></div>
+          <div id="ablChart"></div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="results">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Latency</h2>
-        <p>End-to-end decoding keeps latency low and steady. The cascade’s language-model search sometimes takes several seconds.</p>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head"><span class="label">Per sentence · NVIDIA A40 · validation set</span></div>
-        <div class="panel-body"><div id="latChart"></div></div>
-      </div>
-      <div class="panel stack">
-        <div class="panel-head"><span class="label">Ten sentences, played back in real time</span>
-          <button class="icon-btn" id="raceBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Start</button></div>
-        <div class="panel-body race" id="race"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="memory">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Accuracy and memory</h2>
-        <p>Every variant runs on an iPhone in under 700 MB. The cascade needs about 320 GB.</p>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head"><span class="label">Word error rate vs. peak memory</span>
-          <div class="legend"><span><i style="background:var(--whisper)"></i>Whisper</span><span><i style="background:var(--parakeet)"></i>Parakeet</span><span><i style="background:var(--fg-3)"></i>other methods</span></div></div>
-        <div class="panel-body"><div id="memChart"></div></div>
-      </div>
-      <div class="panel stack">
-        <div class="panel-head"><span class="label">All models</span></div>
-        <div class="table-wrap" id="zooTable"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="block" id="adaptation">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2>Generalization</h2>
-        <p>Accuracy drops on new recording days. Fine-tuning on data from that day brings it back, and more pretraining data helps.</p>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <span class="label">Held-out days · May–July 2024</span>
-          <div class="seg" role="group" aria-label="Backbone">
-            <button type="button" data-bb="whisper" aria-pressed="true">Whisper Base</button>
-            <button type="button" data-bb="parakeet" aria-pressed="false">Parakeet EOU</button>
-          </div>
-        </div>
-        <div class="panel-body gallery" id="ftGallery">
-          <div class="card"><p class="label sub">Zero-shot vs. finetuned</p><div id="ftBars"></div></div>
-          <div class="card"><p class="label sub">Minutes of new-day data</p><div id="ftMinutes"></div></div>
-          <div class="card"><p class="label sub">Days in pretraining</p><div id="ftScaling"></div></div>
-        </div>
-        <div class="dots" id="ftDots" role="tablist" aria-label="Charts"><button type="button" aria-label="Zero-shot vs. finetuned"></button><button type="button" aria-label="Minutes of new-day data"></button><button type="button" aria-label="Days in pretraining"></button></div>
-      </div>
+      </figure>
     </div>
   </section>
 
@@ -313,7 +341,7 @@
         <h2>Citation</h2>
       </div>
       <div class="bib">
-        <pre id="bibtex">@inproceedings{mccart2026fettuccine,
+        <pre id="bibtex">@inproceedings{mccartdeevi2026fettuccine,
   title     = {{FETTUCCINE}: Fast and efficient brain-to-text decoding on mobile devices},
   author    = {McCart, Jonathan D. and Deevi, Pranav I. and Azabou, Mehdi and
                Krishna, Nanda H. and McKinney, Caleb A. and Card, Nicholas S. and
@@ -327,7 +355,11 @@
   </section>
 </main>
 
-<footer></footer>
+<footer>
+  <div class="wrap">
+    <p><b>About the demos.</b> To run in a browser, the live demo uses the smallest variant, FETTUCCINE Whisper Tiny, additionally quantized to 8-bit weights and run with ONNX Runtime Web. This is for the demo only. The paper’s results come from the models benchmarked in PyTorch on an NVIDIA A40 and with Core ML on an iPhone 15 Pro Max; speeds measured here depend on your device and browser and are not comparable with either. The saliency maps and electrode-silencing results on this page were recomputed for Whisper Tiny on validation sentences (the paper uses Whisper Base and Parakeet EOU), and the augmentation example applies the paper’s T15 Whisper settings to one sentence. All recordings are from the Brain-to-Text ’25 dataset.</p>
+  </div>
+</footer>
 
 <div class="tip" id="tip" hidden></div>
 <script src="assets/js/config.js"></script>

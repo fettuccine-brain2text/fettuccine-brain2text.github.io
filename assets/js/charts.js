@@ -1,4 +1,4 @@
-// Results figures: latency raincloud + race, WER-vs-memory, model table, adaptation, recipe ablations, T12.
+// Results figures: accuracy across participants + tables, latency raincloud + race, WER vs. memory, adaptation, ablations.
 import { svg, el, h, lin, logs, hover, fmtMs, prefersReduced, fitW, responsive } from './util.js';
 
 const $ = (id) => document.getElementById(id);
@@ -50,7 +50,7 @@ function drawLatency(L, box) {
 }
 
 // ------------------------------------------------------------ race: 10 sentences back to back
-export function initRace(L) {
+export function initRace(P) {   // P: per-sentence latencies, aligned across decoders (same index = same sentence)
   const box = $('race');
   const rows = [
     { key: 'whisper-base', name: 'FETTUCCINE · Whisper Base', color: C.whisper },
@@ -69,7 +69,8 @@ export function initRace(L) {
   let running = false;
   async function go() {
     if (running) return; running = true;
-    const draws = rows.map((r) => Array.from({ length: N }, () => L[r.key].values[Math.floor(Math.random() * L[r.key].values.length)]));
+    const n = P[rows[0].key].length, pick = Array.from({ length: N }, () => Math.floor(Math.random() * n));
+    const draws = rows.map((r) => pick.map((j) => P[r.key][j]));
     const totals = draws.map((d) => d.reduce((a, b) => a + b, 0));
     const maxT = Math.max(...totals);
     const t0 = performance.now(), speed = prefersReduced() ? 1e9 : 1;
@@ -104,7 +105,7 @@ function drawMemory(M, box) {
   el('text', { x: 14, y: (m.t + H - m.b) / 2, transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})`, 'text-anchor': 'middle', text: 'word error rate' }, s);
   for (const p of M) {
     const cx = x(p.mem_gb), cy = y(p.wer);
-    const color = p.kind === 'ours' ? (p.family === 'parakeet' ? C.parakeet : C.whisper) : (p.label === 'GRU' ? C.cascade : 'var(--fg-3)');
+    const color = p.kind === 'ours' ? (p.family === 'parakeet' ? C.parakeet : C.whisper) : 'var(--fg-3)';
     const mk = el('circle', { cx, cy, r: 5.5, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s);
     const [dx, dy, anchor] = p.lab || [10, 4, 'start'];
     el('text', { x: cx + dx, y: cy + dy, 'text-anchor': anchor, class: p.kind === 'ours' ? 't1' : 't2', text: p.name }, s);
@@ -112,12 +113,74 @@ function drawMemory(M, box) {
   }
 }
 
-// ------------------------------------------------------------ model table
+// ------------------------------------------------------------ accuracy across participants (Tables 1 and 3)
+// One panel per participant: test WER against parameter count. Baseline parameter counts are lower bounds.
+export function participantsChart(Z) { const box = $('ppChart'); responsive(box, () => drawParticipants(Z, box)); }
+function drawParticipants(Z, box) {
+  const rows = Z.rows.filter((r) => !/TensorRT/.test(r.name));
+  const params = (r) => r.params ?? parseFloat((r.params_txt || '').replace(/[^\d.]/g, ''));
+  const wide = (box.clientWidth || 640) >= 640, n = 2;
+  const PW = wide ? Math.floor((box.clientWidth - 24) / 2) : Math.max(300, box.clientWidth || 300), H = 300;
+  box.innerHTML = '';
+  for (const [key, title] of [['wer_pub', 'T15 · brain-to-text ’25'], ['t12', 'T12 · brain-to-text ’24']]) {
+    const cell = h('div', { class: 'pp' }); box.append(cell);
+    const m = { l: 44, r: 16, t: 30, b: 40 };
+    const s = svg(cell, PW, H, `Test word error rate versus parameters, participant ${title}`);
+    const x = logs(0.025, 2.4, m.l, PW - m.r), y = lin(0, key === 't12' ? 24 : 14, H - m.b, m.t);
+    const g = el('g', { class: 'grid' }, s);
+    for (const t of key === 't12' ? [0, 5, 10, 15, 20] : [0, 4, 8, 12]) { el('line', { x1: m.l, x2: PW - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
+    for (const t of [0.03, 0.1, 0.3, 1]) el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? Math.round(t * 1000) + 'M' : t + 'B' }, s);
+    el('text', { x: (m.l + PW - m.r) / 2, y: H - 6, 'text-anchor': 'middle', text: 'parameters (log scale)' }, s);
+    el('text', { x: m.l, y: 14, class: 't1', text: title }, s);
+    // best cascade: a reference line (parameter counts are only known as lower bounds)
+    const casc = rows.filter((r) => r.group === 'cascade' && r[key] != null).sort((a, b) => a[key] - b[key])[0];
+    el('line', { x1: m.l, x2: PW - m.r, y1: y(casc[key]), y2: y(casc[key]), style: 'stroke:var(--fg-3);stroke-width:1.25;stroke-dasharray:5 4' }, s);
+    el('text', { x: m.l + 6, y: y(casc[key]) + 15, class: 't2', text: `best cascade ${casc[key].toFixed(2)}%` }, s);
+    // ours: Whisper sizes joined by a line, Parakeet as points
+    const wh = rows.filter((r) => r.kind === 'ours' && /Whisper/.test(r.name)).sort((a, b) => a.params - b.params);
+    el('path', { d: wh.map((r, i) => `${i ? 'L' : 'M'}${x(r.params)},${y(r[key])}`).join(''), style: 'fill:none;stroke:var(--whisper);stroke-width:1.5;stroke-opacity:.5' }, s);
+    for (const r of rows.filter((r) => r[key] != null)) {
+      const ours = r.kind === 'ours', fam = /Parakeet/.test(r.name) ? C.parakeet : C.whisper;
+      const p = params(r), cx = x(p), cy = y(r[key]);
+      if (r.group === 'cascade') continue;
+      const mk = el('circle', { cx, cy, r: ours ? 5.5 : 5, style: `fill:${ours ? fam : 'var(--fg-3)'};stroke:var(--bg-2);stroke-width:2` }, s);
+      const short = ours ? r.name.replace(/^(Whisper|Parakeet) /, '').replace('Large v3 Turbo', 'Turbo') : r.name.split(' (')[0].replace(' E2E', '');
+      el('text', ours ? { x: cx, y: cy - 10, 'text-anchor': 'middle', class: 't2', text: short } : { x: cx, y: cy + 17, 'text-anchor': 'middle', class: 't2', text: short }, s);
+      hover(mk, () => `<b>${r.name}</b><br>${r[key].toFixed(2)}% test WER<br>${ours ? (p * 1000).toFixed(0) + 'M' : r.params_txt + 'B'} parameters`);
+    }
+  }
+  box.classList.toggle('stack', !wide);
+}
+
+// compact table: our best per column against the best baseline; the full table sits in a <details>
+const fmt = (v, d = 2) => v == null ? '–' : typeof v === 'string' ? v : v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+export function bestTable(Z) {
+  const rows = Z.rows, ours = rows.filter((r) => r.kind === 'ours'), base = rows.filter((r) => r.kind !== 'ours');
+  const cols = [
+    { k: 'T15 WER', get: (r) => r.wer_pub, f: (v) => fmt(v) + '%' },
+    { k: 'T12 WER', get: (r) => r.t12, f: (v) => fmt(v) + '%' },
+    { k: 'Latency · A40', get: (r) => r.lat ?? num(r.lat_txt), f: (v, r) => (r.lat_txt ? r.lat_txt.split(' ±')[0] : fmt(v, 1)) + ' ms' },
+    { k: 'GPU memory', get: (r) => r.vram ?? num(r.vram_txt), f: (v, r) => (r.vram_txt || fmt(v, 0)) + ' MB' },
+    { k: 'iPhone memory', get: (r) => r.phone && r.phone.mem, f: (v) => fmt(v, 0) + ' MB' },
+  ];
+  const num = (t) => (t ? parseFloat((t.match(/[\d,.]+/) || [''])[0].replace(/,/g, '')) : undefined);
+  const bestOf = (set, c) => set.filter((r) => c.get(r) != null).sort((a, b) => c.get(a) - c.get(b))[0];
+  const cell = (r, c, win) => r
+    ? h('td', { class: win ? 'best' : '' }, h('span', { class: 'v' }, c.f(c.get(r), r)), h('span', { class: 'm' }, r.name.replace(' (Aero1-Audio 1.5B)', '').replace(' + 4-gram + Llama-3.2-1B', '').replace(' + 5-gram + OPT-6.7B', ' + LM')))
+    : h('td', { class: 'na' }, h('span', { class: 'v' }, '–'), h('span', { class: 'm' }, 'not reported'));
+  const t = h('table', { class: 'best-t' });
+  t.append(h('thead', {}, h('tr', {}, h('th', {}), ...cols.map((c) => h('th', {}, c.k)))));
+  const tb = h('tbody'); t.append(tb);
+  const pairs = cols.map((c) => [bestOf(ours, c), bestOf(base, c)]);
+  tb.append(h('tr', {}, h('th', { scope: 'row' }, 'FETTUCCINE'), ...cols.map((c, i) => { const [o, b] = pairs[i]; return cell(o, c, !b || c.get(o) <= c.get(b)); })));
+  tb.append(h('tr', {}, h('th', { scope: 'row' }, 'Best baseline'), ...cols.map((c, i) => { const [o, b] = pairs[i]; return cell(b, c, b && c.get(b) < c.get(o)); })));
+  const box = $('bestTable'); box.innerHTML = ''; box.append(t);
+}
 export function zooTable(Z) {
   // follows Table 1 (server, NVIDIA A40; compute columns are the worse of the two participants) and Table 2 (iPhone)
   const box = $('zooTable');
   const rows = Z.rows, ours = rows.filter((r) => r.kind === 'ours');
-  const f = (v, d = 2) => v == null ? '–' : typeof v === 'string' ? v : v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const f = fmt;
   const min = (vals) => Math.min(...vals.filter((v) => v != null));
   const best = { wer: min(ours.map((r) => r.wer_pub)), t12: min(ours.map((r) => r.t12)), lat: min(ours.map((r) => r.lat)), vram: min(ours.map((r) => r.vram)),
     pwer: min(ours.map((r) => r.phone && r.phone.wer)), plat: min(ours.map((r) => r.phone && r.phone.lat)), pmem: min(ours.map((r) => r.phone && r.phone.mem)) };
@@ -132,7 +195,7 @@ export function zooTable(Z) {
   sub('FETTUCCINE');
   for (const r of ours) {
     const p = r.phone;
-    tb.append(h('tr', { class: r.browser ? 'browser' : '' }, h('td', {}, r.name),
+    tb.append(h('tr', {}, h('td', {}, r.name),
       td(f(r.wer_pub), r.wer_pub === best.wer), td(f(r.t12), r.t12 === best.t12), td(f(r.params), false),
       td(f(r.lat, 1), r.lat === best.lat, '', r.lat_sd != null ? `± ${f(r.lat_sd, 1)} ms (s.d.)` : undefined), td(f(r.vram, 0), r.vram === best.vram),
       td(p ? f(p.wer, 1) : '–', p && p.wer === best.pwer, 'gl', p ? `± ${f(p.wer_se, 1)} (s.e.m.)` : undefined),

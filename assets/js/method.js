@@ -1,61 +1,33 @@
-// Method figures: cascade vs. FETTUCCINE pipeline diagram, and the word-level augmentation sandbox.
-import { svg, el, h, tokens, divergingLUT } from './util.js';
+// Method figures: the FETTUCCINE architecture (Whisper or Parakeet), and the word-level augmentation sandbox.
+import { tokens, divergingLUT } from './util.js';
 
 const $ = (id) => document.getElementById(id);
 
+// Component names and sizes follow the paper (Sec. 3, Appendix D, Tables 7 and 9).
+const ARCH = {
+  whisper: {
+    adapter: '1D U-Net · 6 M parameters',
+    enc: 'Whisper encoder', encSub: 'Transformer',
+    dec: 'Whisper decoder', decSub: 'Transformer, text tokens',
+    bb: 'Whisper, pretrained on speech · Tiny, Base, Small, Large v3 Turbo',
+    cap: 'Trained in two stages with a cross-entropy loss: the adapter alone, then the adapter with LoRA. The recognizer’s own weights stay frozen.',
+  },
+  parakeet: {
+    adapter: 'Convolutional subsampling · 8× · 5 M parameters',
+    enc: 'FastConformer encoder', encSub: 'Conformer',
+    dec: 'Transducer decoder', decSub: 'TDT or RNN-T',
+    bb: 'Parakeet, pretrained on speech · TDT 0.6B v2, EOU 120M',
+    cap: 'Trained in two stages with the transducer loss: the adapter alone, then the adapter with LoRA. The recognizer’s own weights stay frozen.',
+  },
+};
 export function pipeline() {
-  const box = $('pipeDiagram');
-  box.style.overflowX = 'auto';
-  const inner = h('div', { style: 'min-width:720px' }); box.innerHTML = ''; box.append(inner);
-  const W = 1060, H = 262;
-  const s = svg(inner, W, H, 'Cascaded decoder compared with FETTUCCINE');
-  s.style.width = '100%';   // scale the fixed-size drawing to the card
-  el('defs', {}, s).innerHTML = '<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--fg-3)"/></marker>';
-  const box_ = (x, y, w, hh, title, sub, kind) => {
-    const trained = kind === 'trained', lora = kind === 'lora';
-    el('rect', { x, y, width: w, height: hh, rx: 7, style: `fill:${trained ? 'var(--accent-wash)' : 'var(--bg-3)'};stroke:${trained ? 'var(--accent)' : 'var(--line-2)'};stroke-width:1.5` }, s);
-    el('text', { x: x + w / 2, y: y + hh / 2 - (sub ? 4 : -4), 'text-anchor': 'middle', style: 'font-family:var(--font-display);font-size:16px;font-weight:600;fill:var(--fg)', text: title }, s);
-    if (sub) el('text', { x: x + w / 2, y: y + hh / 2 + 16, 'text-anchor': 'middle', text: sub }, s);
-    if (lora) {
-      el('rect', { x: x + w - 54, y: y - 10, width: 50, height: 20, rx: 10, style: 'fill:var(--accent);stroke:var(--bg-2);stroke-width:2' }, s);
-      el('text', { x: x + w - 29, y: y + 4, 'text-anchor': 'middle', style: 'fill:var(--accent-ink);font-size:10px', text: '+LoRA' }, s);
-    }
+  const set = (k) => {
+    const A = ARCH[k];
+    document.querySelectorAll('#method [data-a]').forEach((n) => { n.textContent = A[n.dataset.a]; });
+    document.querySelectorAll('[data-arch]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.arch === k)));
   };
-  const arrow = (x1, y, x2) => el('line', { x1, y1: y, x2: x2 - 3, y2: y, style: 'stroke:var(--fg-3);stroke-width:1.5', 'marker-end': 'url(#arr)' }, s);
-  // row labels
-  const rows = [
-    { y: 34, label: 'Cascade', note: 'workstation · ~320 GB · up to 16 s per sentence', color: 'var(--cascade)' },
-    { y: 176, label: 'FETTUCCINE', note: 'phone · 209 MB · 48 ms per sentence', color: 'var(--accent)' },
-  ];
-  for (const r of rows) {
-    el('text', { x: 0, y: r.y - 12, style: `fill:${r.color};font-size:13px;font-weight:600`, text: r.label }, s);
-    el('text', { x: W, y: r.y - 12, 'text-anchor': 'end', text: r.note }, s);
-  }
-  const bh = 74, y1 = 34, y2 = 176;
-  // shared input
-  const inX = 0, inW = 130;
-  for (const y of [y1, y2]) {
-    el('rect', { x: inX, y, width: inW, height: bh, rx: 7, style: 'fill:var(--bg);stroke:var(--line-2);stroke-dasharray:4 3' }, s);
-    el('text', { x: inX + inW / 2, y: y + 32, 'text-anchor': 'middle', style: 'font-family:var(--font-display);font-size:15px;font-weight:600;fill:var(--fg)', text: 'Neural data' }, s);
-    el('text', { x: inX + inW / 2, y: y + 52, 'text-anchor': 'middle', text: '512 × T · 50 Hz' }, s);
-  }
-  // cascade
-  const cw = 170, gap = 34; let x = inW + gap;
-  box_(x, y1, cw, bh, 'GRU', 'phoneme probabilities', 'trained'); arrow(inW, y1 + bh / 2, x); x += cw + gap;
-  box_(x, y1, cw, bh, '5-gram LM', 'WFST search · ~300 GB', 'frozen'); arrow(x - gap, y1 + bh / 2, x); x += cw + gap;
-  box_(x, y1, cw, bh, 'LLM rescoring', 'OPT-6.7B', 'frozen'); arrow(x - gap, y1 + bh / 2, x); x += cw + gap;
-  const outX = x;
-  // fettuccine
-  x = inW + gap;
-  box_(x, y2, cw, bh, 'Neural Adapter', '1D U-Net · ~6 M', 'trained'); arrow(inW, y2 + bh / 2, x); x += cw + gap;
-  box_(x, y2, cw, bh, 'ASR encoder', 'frozen weights', 'lora'); arrow(x - gap, y2 + bh / 2, x); x += cw + gap;
-  box_(x, y2, cw, bh, 'ASR decoder', 'frozen · BPE text', 'frozen'); arrow(x - gap, y2 + bh / 2, x); x += cw + gap;
-  // outputs
-  for (const [y, txt] of [[y1, 'text'], [y2, 'text']]) {
-    arrow(outX - gap, y + bh / 2, outX);
-    el('rect', { x: outX, y: y + 12, width: W - outX, height: bh - 24, rx: 7, style: 'fill:var(--bg);stroke:var(--line-2)' }, s);
-    el('text', { x: outX + (W - outX) / 2, y: y + bh / 2 + 5, 'text-anchor': 'middle', style: 'font-family:var(--font-display);font-size:15px;fill:var(--fg)', text: '“how are you doing”' }, s);
-  }
+  document.querySelectorAll('[data-arch]').forEach((b) => b.addEventListener('click', () => set(b.dataset.arch)));
+  set('whisper');
 }
 
 // ------------------------------------------------------------------ augmentation sandbox

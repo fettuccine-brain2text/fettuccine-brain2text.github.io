@@ -2,7 +2,7 @@
 import { initHero } from './hero.js';
 import { initDemo } from './demo.js';
 import { pipeline, initAugment } from './method.js';
-import { latencyChart, initRace, memoryChart, zooTable, initAdaptation, recipeChart } from './charts.js';
+import { latencyChart, initRace, memoryChart, participantsChart, bestTable, zooTable, initAdaptation, recipeChart } from './charts.js';
 
 // ---- theme: system by default, explicit choice stored per viewer ----
 const root = document.documentElement;
@@ -55,7 +55,9 @@ if (qr && qr.dataset.site && (location.origin + '/' === qr.dataset.site || new U
 
 get('hero.json').then((h) => safe('hero', () => initHero(h))).catch((e) => console.error('hero', e));
 near(['demo', 'inside'], async () => { const [s, i] = await Promise.all([site(), trials()]); safe('demo', () => initDemo(i, s)); });
-near(['method'], async () => { const s = await site(); safe('pipeline', pipeline); safe('augment', () => initAugment(s.aug)); safe('recipe', () => recipeChart(s.recipe)); });
-near(['results'], async () => { const s = await site(); safe('latency', () => latencyChart(s.latency)); safe('race', () => initRace(s.latency)); });
-near(['memory'], async () => { const s = await site(); safe('memory', () => memoryChart(s.memory)); safe('zoo', () => zooTable(s.zoo)); });
+near(['method'], async () => { safe('pipeline', pipeline); });
+near(['augment'], async () => { const s = await site(); safe('augment', () => initAugment(s.aug)); safe('recipe', () => recipeChart(s.recipe)); });
+near(['results'], async () => { const s = await site(); safe('participants', () => participantsChart(s.zoo)); safe('best', () => bestTable(s.zoo)); safe('zoo', () => zooTable(s.zoo)); });
+near(['latency'], async () => { const s = await site(); safe('latency', () => latencyChart(s.latency)); safe('race', () => initRace(s.latency_paired)); });
+near(['mobile'], async () => { const s = await site(); safe('memory', () => memoryChart(s.memory)); });
 near(['adaptation'], async () => { const s = await site(); safe('adapt', () => initAdaptation(s.finetune)); });

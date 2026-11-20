@@ -2,16 +2,17 @@
 // then the sentence FETTUCCINE decoded, with the latency measured on the iPhone for that trial.
 import { hexToRgb, prefersReduced, sleep } from './util.js';
 
-// the phone keeps its own dark palette in both site themes
-const NEG = hexToRgb('#3d8fd6'), MID = hexToRgb('#000000'), POS = hexToRgb('#f2b04a');
-const LUT = (() => {
+// the phone keeps its own dark palette in both site themes: --ph-screen, --ph-neg, --ph-pos (style.css)
+function lut(phone) {
+  const cs = getComputedStyle(phone), c = (n, d) => hexToRgb(cs.getPropertyValue(n).trim() || d);
+  const NEG = c('--ph-neg', '#5f8fcf'), MID = c('--ph-screen', '#000000'), POS = c('--ph-pos', '#d9776c');
   const l = new Uint8ClampedArray(256 * 3);
   for (let i = 0; i < 256; i++) {
-    const t = i / 255 * 2 - 1, a = Math.pow(Math.abs(t), 0.85), c = t < 0 ? NEG : POS;
-    for (let k = 0; k < 3; k++) l[i * 3 + k] = MID[k] + (c[k] - MID[k]) * a;
+    const t = i / 255 * 2 - 1, a = Math.pow(Math.abs(t), 0.85), col = t < 0 ? NEG : POS;
+    for (let k = 0; k < 3; k++) l[i * 3 + k] = MID[k] + (col[k] - MID[k]) * a;
   }
-  return l;
-})();
+  return { l, mid: `rgb(${MID.join(',')})` };
+}
 const KEEP = 3;   // messages kept on screen
 
 function rowsOf(b64) {
@@ -27,6 +28,7 @@ export async function initHero(data) {
   const clock = document.getElementById('phTime');
   const cv = document.getElementById('phRaster'), ctx = cv.getContext('2d');
   const trials = data.trials.map((t) => ({ ...t, u: rowsOf(t.rows) }));
+  const { l: LUT, mid: SCREEN } = lut(phone);
 
   let visible = true;
   new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(phone);
@@ -53,11 +55,11 @@ export async function initHero(data) {
   function draw(k, frac) {
     shown = [k, frac];
     const t = trials[k], W = cv.width, H = cv.height;
-    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = SCREEN; ctx.fillRect(0, 0, W, H);
     const sx = Math.max(1, Math.round(t.F * frac)), dw = W * (sx / t.F);
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(full[k], 0, 0, sx, t.R, 0, 0, dw, H);
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = SCREEN;
     for (let a = 1; a < 4; a++) ctx.fillRect(0, Math.round(a * H / 4) - 1, W, 2);   // gaps between the 4 arrays
     if (frac < 1) { ctx.fillStyle = '#fff'; ctx.fillRect(Math.min(W - 2, dw), 0, 2, H); }
   }
