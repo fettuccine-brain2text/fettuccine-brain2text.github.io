@@ -368,7 +368,7 @@ footer b { color: var(--fg-2); font-weight: 600; }
 .qr { position: absolute; right: -180px; top: 4px; display: grid; justify-items: center; gap: 6px; text-decoration: none; color: var(--fg-3); font-size: 0.75rem; line-height: 1.3; text-align: center; }
 .qr-code { width: 72px; height: 72px; padding: 5px; border-radius: 10px; background: #fff; color: #000; display: block; box-shadow: 0 0 0 1px var(--line); }
 .qr-code svg { width: 100%; height: 100%; display: block; }
-.qr br { display: none; }
+.qr-label { max-width: 76px; }   /* wraps to two lines under the code */
 @media (max-width: 1140px), (pointer: coarse) { .qr { display: none !important; } }
 
 /* footnotes: a marker in the intro, the note right under the section's figure */
