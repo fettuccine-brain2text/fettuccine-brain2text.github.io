@@ -4,20 +4,20 @@ import { tokens, divergingLUT } from './util.js';
 const $ = (id) => document.getElementById(id);
 
 // Component names and sizes follow the paper (Sec. 3, Appendix D, Tables 7 and 9).
-const ARCH = {
+const ARCH = {   // keep the two descriptions the same shape, so the figure does not jump when toggled
   whisper: {
-    adapter: '1D U-Net · 6 M parameters',
+    adapter: '1D U-Net\n6 M parameters',
     enc: 'Whisper encoder', encSub: 'Transformer',
-    dec: 'Whisper decoder', decSub: 'Transformer, text tokens',
-    bb: 'Whisper, pretrained on speech · Tiny, Base, Small, Large v3 Turbo',
-    cap: 'Trained in two stages with a cross-entropy loss: the adapter alone, then the adapter with LoRA. The recognizer’s own weights stay frozen.',
+    dec: 'Whisper decoder', decSub: 'Transformer',
+    bb: 'Pretrained Whisper, Tiny to Large v3 Turbo',
+    cap: 'Trained in two stages with a cross-entropy loss: the adapter first, then the adapter and LoRA together. The recognizer’s own weights stay frozen.',
   },
   parakeet: {
-    adapter: 'Convolutional subsampling · 8× · 5 M parameters',
+    adapter: 'Convolutional subsampling\n5 M parameters',
     enc: 'FastConformer encoder', encSub: 'Conformer',
     dec: 'Transducer decoder', decSub: 'TDT or RNN-T',
-    bb: 'Parakeet, pretrained on speech · TDT 0.6B v2, EOU 120M',
-    cap: 'Trained in two stages with the transducer loss: the adapter alone, then the adapter with LoRA. The recognizer’s own weights stay frozen.',
+    bb: 'Pretrained Parakeet, TDT 0.6B v2 and EOU 120M',
+    cap: 'Trained in two stages with a transducer loss: the adapter first, then the adapter and LoRA together. The recognizer’s own weights stay frozen.',
   },
 };
 export function pipeline() {

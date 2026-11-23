@@ -5,18 +5,21 @@
      border 16.5 pt per side: ~7.1 pt frame + ~9.4 pt black bezel (1.55 mm); outer radius 55 + 16.5 pt
      Dynamic Island 126 x 37.33 pt, 11.33 pt from the top; status bar 54 pt, top safe area 59 pt
      bottom safe area 34 pt; home indicator 134 x 5 pt, 8 pt above the bottom edge
-   Message text uses the iOS xxxLarge Dynamic Type body size (23 pt) so it stays readable when small.
+   Messages follow iMessage: 17 pt text on a 22 pt line, 18 pt corner radius, 7/12 pt padding, a tail on each bubble.
+   Text is the system font (SF Pro on Apple devices); --phone-font overrides it for renders made without SF. --t scales the messages like iOS Dynamic Type:
+   1 = the default "Large" size (17 pt), 1.353 = "xxxLarge" (23 pt), used on the page, the tweet and the link preview.
    Set --u on .phone (or an ancestor); colours can be overridden with the --phone-* properties. */
 .phone {
   --u: 0.7px;
+  --tu: calc(var(--t, 1) * var(--u));   /* text unit: --u scaled by Dynamic Type */
   position: relative; flex: none;
   width: calc(463 * var(--u)); height: calc(965.3 * var(--u));
   border-radius: calc(71.5 * var(--u)); padding: calc(7.1 * var(--u));
   background: var(--phone-frame, #1d1d1f);
   box-shadow: inset 0 0 0 calc(1.2 * var(--u)) var(--phone-rim, #3a3a3c), var(--phone-shadow, none);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+  font-family: var(--phone-font, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif);
   letter-spacing: 0; line-height: normal; text-align: left;
-  -webkit-font-smoothing: antialiased; font-feature-settings: "cv11", "ss03";
+  -webkit-font-smoothing: antialiased; contain: layout paint;
 }
 .phone .ph-bezel { width: 100%; height: 100%; border-radius: calc(64.4 * var(--u)); background: #000; padding: calc(9.4 * var(--u)); }
 .phone .ph-screen {
@@ -33,24 +36,29 @@
 .phone .ph-icons { position: absolute; right: calc(36 * var(--u)); top: calc(30 * var(--u)); transform: translateY(-50%); display: flex; gap: calc(6 * var(--u)); align-items: center; }
 .phone .ph-icons svg { height: calc(11.5 * var(--u)); width: auto; fill: #f5f5f7; display: block; }
 
-/* app header */
-.phone .ph-head { flex: none; display: grid; justify-items: center; gap: calc(3 * var(--u)); padding: calc(6 * var(--u)) 0 calc(12 * var(--u));
+/* app header: scales with Dynamic Type like the messages */
+.phone .ph-head { flex: none; display: grid; justify-items: center; align-content: center; gap: calc(3 * var(--tu)); padding: calc(12 * var(--tu)) 0 calc(16 * var(--tu));
   border-bottom: calc(0.5 * var(--u)) solid #262628; }
-.phone .ph-avatar { width: calc(44 * var(--u)); height: calc(44 * var(--u)); border-radius: 50%; background: #2c2c2e center / cover no-repeat; }
-.phone .ph-name { font-size: calc(15 * var(--u)); font-weight: 600; letter-spacing: 0.01em; }
-.phone .ph-sub { font-size: calc(12 * var(--u)); color: #8e8e93; }
+.phone .ph-avatar { width: calc(44 * var(--tu)); height: calc(44 * var(--tu)); border-radius: 50%; background: #2c2c2e center / cover no-repeat; }
+.phone .ph-name { font-size: calc(17 * var(--tu)); font-weight: 600; letter-spacing: -0.02em; }
+.phone .ph-sub { font-size: calc(13 * var(--tu)); color: #8e8e93; letter-spacing: -0.005em; }
 
-/* conversation: decoded sentences as sent messages */
+/* conversation: decoded sentences as sent messages; sizes follow Dynamic Type via --t (1 = iOS default "Large") */
 .phone .ph-chat { position: relative; flex: 1; overflow: hidden;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 calc(48 * var(--u))); mask-image: linear-gradient(to bottom, transparent 0, #000 calc(48 * var(--u))); }
-.phone .ph-msg { position: absolute; right: calc(16 * var(--u)); left: calc(16 * var(--u)); bottom: calc(12 * var(--u));
-  display: flex; flex-direction: column; align-items: flex-end; gap: calc(4 * var(--u)); opacity: 0; will-change: transform, opacity; }
-.phone .ph-bubble { max-width: 74%; padding: calc(8.5 * var(--u)) calc(15 * var(--u)) calc(9.5 * var(--u)); border-radius: calc(22 * var(--u));
-  background: #0a84ff; color: #fff; font-size: calc(23 * var(--u)); line-height: 1.24; letter-spacing: -0.01em; text-wrap: pretty; }
-.phone .ph-meta { font-size: calc(13 * var(--u)); color: #8e8e93; padding-right: calc(4 * var(--u)); font-variant-numeric: tabular-nums; }
-.phone .ph-meta b { color: #d1d1d6; font-weight: 500; }
-.phone .ph-typing .ph-bubble { display: flex; gap: calc(5 * var(--u)); padding: calc(15 * var(--u)) calc(17 * var(--u)); background: #26252a; }
-.phone .ph-typing i { display: block; width: calc(9 * var(--u)); height: calc(9 * var(--u)); border-radius: 50%; background: #8e8e93; }
+.phone .ph-msg { position: absolute; right: calc(20 * var(--u)); left: calc(20 * var(--u)); bottom: calc(10 * var(--u));
+  display: flex; flex-direction: column; align-items: flex-end; gap: calc(3 * var(--tu)); opacity: 0; will-change: transform, opacity; }
+.phone .ph-bubble { position: relative; isolation: isolate; max-width: 75%; padding: calc(7 * var(--tu)) calc(12 * var(--tu));
+  border-radius: calc(18 * var(--tu)); background: #0a84ff; color: #fff;
+  font-size: calc(17 * var(--tu)); line-height: calc(22 * var(--tu)); letter-spacing: -0.025em; text-wrap: pretty; }
+/* the tail: a blue curve, trimmed by a screen-coloured one (the classic Messages construction) */
+.phone .ph-msg:not(.ph-typing) .ph-bubble::before, .phone .ph-msg:not(.ph-typing) .ph-bubble::after { content: ""; position: absolute; bottom: 0; z-index: -1; }
+.phone .ph-msg:not(.ph-typing) .ph-bubble::before { right: calc(-7 * var(--tu)); width: calc(20 * var(--tu)); height: calc(17 * var(--tu)); background: #0a84ff; border-bottom-left-radius: calc(16 * var(--tu)) calc(14 * var(--tu)); }
+.phone .ph-msg:not(.ph-typing) .ph-bubble::after { right: calc(-26 * var(--tu)); width: calc(26 * var(--tu)); height: calc(22 * var(--tu)); background: #000; border-bottom-left-radius: calc(10 * var(--tu)); }
+.phone .ph-meta { font-size: calc(11 * var(--tu)); font-weight: 500; color: #8e8e93; padding-right: calc(2 * var(--tu)); font-variant-numeric: tabular-nums; }
+.phone .ph-meta b { color: #c7c7cc; font-weight: 600; }
+.phone .ph-typing .ph-bubble { display: flex; gap: calc(4.5 * var(--tu)); padding: calc(14.5 * var(--tu)) calc(13 * var(--tu)); background: #26252a; }
+.phone .ph-typing i { display: block; width: calc(7.5 * var(--tu)); height: calc(7.5 * var(--tu)); border-radius: 50%; background: #8e8e93; }
 
 /* recording panel where the keyboard would be, above the home-indicator safe area */
 .phone .ph-panel { flex: none; border-top: calc(0.5 * var(--u)) solid #262628; padding: calc(14 * var(--u)) calc(16 * var(--u)) calc(6 * var(--u)); }

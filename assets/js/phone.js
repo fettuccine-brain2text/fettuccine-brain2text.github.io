@@ -21,7 +21,7 @@ const spring = (s) => (s <= 0 ? 0 : s >= SETTLE_S ? 1 : (1 - (1 + W_SPRING * s) 
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 
 const ICONS = '<svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
-  + '<svg viewBox="0 0 17 12"><path d="M8.5 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.2C14 1.5 11.4.4 8.5.4S3 1.5 1 3.5l1.2 1.2C3.9 3.1 6.1 2.2 8.5 2.2zm0 3.5c1.4 0 2.8.5 3.8 1.5l1.2-1.2C12.2 4.7 10.4 4 8.5 4S4.8 4.7 3.5 6l1.2 1.2c1-1 2.4-1.5 3.8-1.5zm0 3.4c-.6 0-1.1.2-1.5.6L8.5 11.2 10 9.7c-.4-.4-.9-.6-1.5-.6z"/></svg>'
+  + '<svg viewBox="0 0 17 12.5"><path stroke="#f5f5f7" stroke-width=".6" stroke-linejoin="round" d="M8.5 11.6L6.05 9.24A3.4 3.4 0 0 1 10.95 9.24ZM3.18 6.46A7.4 7.4 0 0 1 13.82 6.46L12.10 8.13A5.0 5.0 0 0 0 4.90 8.13ZM0.30 3.68A11.4 11.4 0 0 1 16.70 3.68L14.97 5.35A9.0 9.0 0 0 0 2.03 5.35Z"/></svg>'
   + '<svg viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="#f5f5f7" stroke-opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2.4"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" fill-opacity=".4"/></svg>';
 
 export function mountPhone(container, { avatar } = {}) {
@@ -85,7 +85,7 @@ export async function createPhone(phone, data) {
   chat.append(typing);
   const dots = [...typing.querySelectorAll('i')];
 
-  let typH = 0, gap = 0, U = 1;
+  let typH = 0, gap = 0, U = 1, drawn = null;
   function measure() {   // sizes depend on --u; call again after a resize
     chat.querySelectorAll('.ph-bubble').forEach((b) => { b.style.width = ''; });
     // shrink-wrap wrapped bubbles to their longest line, as Messages does
@@ -103,6 +103,7 @@ export async function createPhone(phone, data) {
     typH = typing.querySelector('.ph-bubble').offsetHeight + gap;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
+    drawn = null;   // resizing clears the canvas
   }
   await document.fonts.ready;
   measure();
@@ -116,49 +117,56 @@ export async function createPhone(phone, data) {
     ctx.globalAlpha = 1;
   }
 
+  // write to the DOM only when a value changes, so idle frames cost nothing
+  const put = (el, k, v) => { v = String(v); const c = el._c || (el._c = {}); if (c[k] !== v) { c[k] = v; el.style[k] = v; } };
+  const text = (el, v) => { if (el.textContent !== v) el.textContent = v; };
+
   function render(tau) {
     const t = ((tau % CYCLE) + CYCLE) % CYCLE;
     const s = segs.find((x) => t >= x.listen0 && t < x.end) || segs[segs.length - 1];
     const prev = segs[(s.k - 1 + segs.length) % segs.length], tr = trials[s.k];
     const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
-    ctx.fillStyle = C.screen; ctx.fillRect(0, 0, W, H);
-    if (t < s.listen1) {
+    const listening = t < s.listen1, key = listening ? null : `${s.k}:${W}x${H}`;
+    const repaint = listening || drawn !== key;   // a finished recording stays on the canvas untouched
+    drawn = key;
+    if (repaint) { ctx.fillStyle = C.screen; ctx.fillRect(0, 0, W, H); }
+    if (listening) {
       const frac = (t - s.listen0) / (s.listen1 - s.listen0);
       drawRaster(ctx, W, H, trials[prev.k], 1, 1 - smooth((t - s.listen0) / 0.35));   // previous recording fades
       drawRaster(ctx, W, H, tr, frac, 1);
       const pw = Math.max(2, Math.round(W / 260));
       ctx.fillStyle = C.head; ctx.globalAlpha = 0.9; ctx.fillRect(Math.min(W - pw, W * frac - pw / 2), 0, pw, H); ctx.globalAlpha = 1;
-      stxt.textContent = 'Listening'; clock.textContent = (frac * tr.dur).toFixed(1) + ' s';
-      dot.style.background = C.dot; dot.style.opacity = (0.55 + 0.45 * Math.cos(2 * Math.PI * (t - s.listen0) / 1.4)).toFixed(3);
+      text(stxt, 'Listening'); text(clock, (frac * tr.dur).toFixed(1) + ' s');
+      put(dot, 'background', C.dot); put(dot, 'opacity', (0.55 + 0.45 * Math.cos(2 * Math.PI * (t - s.listen0) / 1.4)).toFixed(3));
     } else {
-      drawRaster(ctx, W, H, tr, 1, 1);
-      clock.textContent = tr.dur.toFixed(1) + ' s'; dot.style.opacity = 1;
-      if (t < s.arrive) { stxt.textContent = 'Decoding'; dot.style.background = C.dot; }
-      else { stxt.textContent = 'Decoded'; dot.style.background = C.done; }
+      if (repaint) drawRaster(ctx, W, H, tr, 1, 1);
+      text(clock, tr.dur.toFixed(1) + ' s'); put(dot, 'opacity', 1);
+      if (t < s.arrive) { text(stxt, 'Decoding'); put(dot, 'background', C.dot); }
+      else { text(stxt, 'Decoded'); put(dot, 'background', C.done); }
     }
     // the stack scrolls up, on one spring, by the typing dots and then by each later message
     const lift = (o) => typH * (spring(t - o.typ) - spring(t - o.at)) + o.h * spring(t - o.at);
     for (const m of msgs) {
       let off = 0, nLater = 0;
       for (const o of msgs) if (o.at > m.at && o.typ <= t) { off += lift(o); nLater += spring(t - o.at); }
-      if (t < m.at || nLater >= KEEP) { m.el.style.opacity = 0; continue; }
+      if (t < m.at || nLater >= KEEP) { put(m.el, 'opacity', 0); continue; }
       const x = spring(t - m.at);
       const op = smooth((t - m.at) / 0.25) * (1 - smooth((t - m.retire) / 0.45));   // the oldest leaves at the top
-      m.el.style.opacity = op.toFixed(3);
-      m.el.style.transform = `translate3d(0, ${(-off + (1 - x) * m.h).toFixed(2)}px, 0)`;
-      m.meta.style.opacity = smooth((t - m.at - 0.12) / 0.3).toFixed(3);
+      put(m.el, 'opacity', op.toFixed(3));
+      put(m.el, 'transform', `translate3d(0, ${(-off + (1 - x) * m.h).toFixed(2)}px, 0)`);
+      put(m.meta, 'opacity', smooth((t - m.at - 0.12) / 0.3).toFixed(3));
     }
     // typing dots for the sentence being decoded
     const cur = msgs.find((o) => o.typ <= t && t < o.at + 0.3);
     if (cur) {
-      typing.style.opacity = (smooth((t - cur.typ) / 0.2) * (1 - smooth((t - cur.at) / 0.18))).toFixed(3);
-      typing.style.transform = `translate3d(0, ${((1 - spring(t - cur.typ)) * typH).toFixed(2)}px, 0)`;
+      put(typing, 'opacity', (smooth((t - cur.typ) / 0.2) * (1 - smooth((t - cur.at) / 0.18))).toFixed(3));
+      put(typing, 'transform', `translate3d(0, ${((1 - spring(t - cur.typ)) * typH).toFixed(2)}px, 0)`);
       dots.forEach((d, i) => {   // the familiar wave: each dot brightens and lifts in turn
         const w = 0.5 + 0.5 * Math.cos(2 * Math.PI * ((t - cur.typ) / 1.1 - i * 0.14));
-        d.style.opacity = (0.4 + 0.6 * w).toFixed(3);
-        d.style.transform = `translateY(${(-2.5 * w * U).toFixed(2)}px)`;
+        put(d, 'opacity', (0.4 + 0.6 * w).toFixed(3));
+        put(d, 'transform', `translateY(${(-2.5 * w * U).toFixed(2)}px)`);
       });
-    } else typing.style.opacity = 0;
+    } else put(typing, 'opacity', 0);
   }
 
   const still = segs[segs.length - 1].arrive + SETTLE_S + 0.9;   // mid-hold of the last sentence

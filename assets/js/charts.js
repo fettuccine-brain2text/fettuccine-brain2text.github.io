@@ -113,67 +113,71 @@ function drawMemory(M, box) {
   }
 }
 
-// ------------------------------------------------------------ accuracy across participants (Tables 1 and 3)
-// One panel per participant: test WER against parameter count. Baseline parameter counts are lower bounds.
-export function participantsChart(Z) { const box = $('ppChart'); responsive(box, () => drawParticipants(Z, box)); }
-function drawParticipants(Z, box) {
-  const rows = Z.rows.filter((r) => !/TensorRT/.test(r.name));
-  const params = (r) => r.params ?? parseFloat((r.params_txt || '').replace(/[^\d.]/g, ''));
-  const wide = (box.clientWidth || 640) >= 640, n = 2;
-  const PW = wide ? Math.floor((box.clientWidth - 24) / 2) : Math.max(300, box.clientWidth || 300), H = 300;
+// ------------------------------------------------------------ accuracy (Table 1)
+// Three FETTUCCINE variants, each best at something, against the best end-to-end decoder and the best cascade.
+const PICK = [
+  { name: 'Whisper Small', role: 'Most accurate' },
+  { name: 'Parakeet TDT · TensorRT', role: 'Fastest', label: 'Parakeet TDT (TensorRT)' },
+  { name: 'Whisper Tiny', role: 'Smallest' },
+  { name: 'BrainWhisperer E2E (cross)', role: 'Best end-to-end baseline', label: 'BrainWhisperer' },
+  { name: 'BIT E2E (Aero1-Audio 1.5B)', role: 'End-to-end baseline', label: 'BIT (Aero1-Audio 1.5B)' },
+  { name: 'LightBeam (Transformer) + 4-gram + Llama-3.2-1B', role: 'Best cascade', label: 'LightBeam + LLM (cascade)' },
+];
+const picked = (Z) => PICK.map((p) => ({ ...p, ...Z.rows.find((r) => r.name === p.name), label: p.label || p.name }));
+
+export function werChart(Z) { const box = $('werChart'); responsive(box, () => drawWER(picked(Z), box)); }
+function drawWER(rows, box) {
+  const cw = box.clientWidth || 640, two = cw >= 620;
   box.innerHTML = '';
-  for (const [key, title] of [['wer_pub', 'T15 · brain-to-text ’25'], ['t12', 'T12 · brain-to-text ’24']]) {
+  box.classList.toggle('stack', !two);
+  const panels = [['wer_pub', 'T15 · brain-to-text ’25', 12], ['t12', 'T12 · brain-to-text ’24', 20]];
+  panels.forEach(([key, title, max], pi) => {
+    const labels = !two || pi === 0;
+    const W = two ? Math.floor((cw - 28) / 2) : cw, rowH = 34, m = { l: labels ? 168 : 8, r: 56, t: 30, b: 34 };
+    const H = m.t + m.b + rowH * rows.length;
     const cell = h('div', { class: 'pp' }); box.append(cell);
-    const m = { l: 44, r: 16, t: 30, b: 40 };
-    const s = svg(cell, PW, H, `Test word error rate versus parameters, participant ${title}`);
-    const x = logs(0.025, 2.4, m.l, PW - m.r), y = lin(0, key === 't12' ? 24 : 14, H - m.b, m.t);
-    const g = el('g', { class: 'grid' }, s);
-    for (const t of key === 't12' ? [0, 5, 10, 15, 20] : [0, 4, 8, 12]) { el('line', { x1: m.l, x2: PW - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
-    for (const t of [0.03, 0.1, 0.3, 1]) el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? Math.round(t * 1000) + 'M' : t + 'B' }, s);
-    el('text', { x: (m.l + PW - m.r) / 2, y: H - 6, 'text-anchor': 'middle', text: 'parameters (log scale)' }, s);
+    const s = svg(cell, W, H, `Test word error rate, ${title}`);
+    const x = lin(0, max, m.l, W - m.r);
     el('text', { x: m.l, y: 14, class: 't1', text: title }, s);
-    // best cascade: a reference line (parameter counts are only known as lower bounds)
-    const casc = rows.filter((r) => r.group === 'cascade' && r[key] != null).sort((a, b) => a[key] - b[key])[0];
-    el('line', { x1: m.l, x2: PW - m.r, y1: y(casc[key]), y2: y(casc[key]), style: 'stroke:var(--fg-3);stroke-width:1.25;stroke-dasharray:5 4' }, s);
-    el('text', { x: m.l + 6, y: y(casc[key]) + 15, class: 't2', text: `best cascade ${casc[key].toFixed(2)}%` }, s);
-    // ours: Whisper sizes joined by a line, Parakeet as points
-    const wh = rows.filter((r) => r.kind === 'ours' && /Whisper/.test(r.name)).sort((a, b) => a.params - b.params);
-    el('path', { d: wh.map((r, i) => `${i ? 'L' : 'M'}${x(r.params)},${y(r[key])}`).join(''), style: 'fill:none;stroke:var(--whisper);stroke-width:1.5;stroke-opacity:.5' }, s);
-    for (const r of rows.filter((r) => r[key] != null)) {
-      const ours = r.kind === 'ours', fam = /Parakeet/.test(r.name) ? C.parakeet : C.whisper;
-      const p = params(r), cx = x(p), cy = y(r[key]);
-      if (r.group === 'cascade') continue;
-      const mk = el('circle', { cx, cy, r: ours ? 5.5 : 5, style: `fill:${ours ? fam : 'var(--fg-3)'};stroke:var(--bg-2);stroke-width:2` }, s);
-      const short = ours ? r.name.replace(/^(Whisper|Parakeet) /, '').replace('Large v3 Turbo', 'Turbo') : r.name.split(' (')[0].replace(' E2E', '');
-      el('text', ours ? { x: cx, y: cy - 10, 'text-anchor': 'middle', class: 't2', text: short } : { x: cx, y: cy + 17, 'text-anchor': 'middle', class: 't2', text: short }, s);
-      hover(mk, () => `<b>${r.name}</b><br>${r[key].toFixed(2)}% test WER<br>${ours ? (p * 1000).toFixed(0) + 'M' : r.params_txt + 'B'} parameters`);
-    }
-  }
-  box.classList.toggle('stack', !wide);
+    const g = el('g', { class: 'grid' }, s);
+    for (let t = 0; t <= max; t += max > 12 ? 5 : 4) { el('line', { x1: x(t), x2: x(t), y1: m.t - 6, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 16, 'text-anchor': 'middle', text: t + '%' }, s); }
+    rows.forEach((r, i) => {
+      const yc = m.t + rowH * i + rowH / 2, ours = r.kind === 'ours';
+      if (i === 3) el('line', { x1: 0, x2: W, y1: yc - rowH / 2, y2: yc - rowH / 2, style: 'stroke:var(--line);stroke-width:1' }, s);
+      if (labels) el('text', { x: 0, y: yc + 4, class: ours ? 't1' : 't2', text: r.label.replace(' (cascade)', '') }, s);   // colour says FETTUCCINE
+      const v = r[key];
+      if (v == null) { el('text', { x: m.l + 4, y: yc + 4, text: 'not reported' }, s); return; }
+      const fill = ours ? (/Parakeet/.test(r.name) ? C.parakeet : C.whisper) : 'var(--fg-3)';
+      const bar = el('path', { d: hbar(x(0), yc - 8, x(v) - x(0), 16), style: `fill:${fill};fill-opacity:${ours ? 1 : r.group === 'cascade' ? 0.35 : 0.6}` }, s);
+      el('text', { x: x(v) + 6, y: yc + 4, class: 't1', text: v.toFixed(2) + '%' }, s);
+      hover(bar, () => `<b>${r.label}</b><br>${r.role}<br>${v.toFixed(2)}% test WER, ${title.split(' ·')[0]}`);
+    });
+  });
 }
 
-// compact table: our best per column against the best baseline; the full table sits in a <details>
+// the same picks as a table, with speed and memory; the full table sits in a <details>
 const fmt = (v, d = 2) => v == null ? '–' : typeof v === 'string' ? v : v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 export function bestTable(Z) {
-  const rows = Z.rows, ours = rows.filter((r) => r.kind === 'ours'), base = rows.filter((r) => r.kind !== 'ours');
+  const rows = picked(Z).filter((r) => r.role !== 'End-to-end baseline');
+  const num = (t) => (t ? parseFloat((t.match(/[\d,.]+/) || [''])[0].replace(/,/g, '')) : undefined);
   const cols = [
     { k: 'T15 WER', get: (r) => r.wer_pub, f: (v) => fmt(v) + '%' },
     { k: 'T12 WER', get: (r) => r.t12, f: (v) => fmt(v) + '%' },
     { k: 'Latency · A40', get: (r) => r.lat ?? num(r.lat_txt), f: (v, r) => (r.lat_txt ? r.lat_txt.split(' ±')[0] : fmt(v, 1)) + ' ms' },
     { k: 'GPU memory', get: (r) => r.vram ?? num(r.vram_txt), f: (v, r) => (r.vram_txt || fmt(v, 0)) + ' MB' },
-    { k: 'iPhone memory', get: (r) => r.phone && r.phone.mem, f: (v) => fmt(v, 0) + ' MB' },
+    { k: 'Latency · iPhone', get: (r) => r.phone && r.phone.lat, f: (v) => fmt(v, 0) + ' ms' },
+    { k: 'Memory · iPhone', get: (r) => r.phone && r.phone.mem, f: (v) => fmt(v, 0) + ' MB' },
   ];
-  const num = (t) => (t ? parseFloat((t.match(/[\d,.]+/) || [''])[0].replace(/,/g, '')) : undefined);
-  const bestOf = (set, c) => set.filter((r) => c.get(r) != null).sort((a, b) => c.get(a) - c.get(b))[0];
-  const cell = (r, c, win) => r
-    ? h('td', { class: win ? 'best' : '' }, h('span', { class: 'v' }, c.f(c.get(r), r)), h('span', { class: 'm' }, r.name.replace(' (Aero1-Audio 1.5B)', '').replace(' + 4-gram + Llama-3.2-1B', '').replace(' + 5-gram + OPT-6.7B', ' + LM')))
-    : h('td', { class: 'na' }, h('span', { class: 'v' }, '–'), h('span', { class: 'm' }, 'not reported'));
+  const best = cols.map((c) => Math.min(...rows.map((r) => c.get(r)).filter((v) => v != null)));
+  const missing = (r, c) => (c.k.includes('iPhone') && r.kind === 'ours' ? 'GPU only' : 'not reported');
   const t = h('table', { class: 'best-t' });
   t.append(h('thead', {}, h('tr', {}, h('th', {}), ...cols.map((c) => h('th', {}, c.k)))));
   const tb = h('tbody'); t.append(tb);
-  const pairs = cols.map((c) => [bestOf(ours, c), bestOf(base, c)]);
-  tb.append(h('tr', {}, h('th', { scope: 'row' }, 'FETTUCCINE'), ...cols.map((c, i) => { const [o, b] = pairs[i]; return cell(o, c, !b || c.get(o) <= c.get(b)); })));
-  tb.append(h('tr', {}, h('th', { scope: 'row' }, 'Best baseline'), ...cols.map((c, i) => { const [o, b] = pairs[i]; return cell(b, c, b && c.get(b) < c.get(o)); })));
+  rows.forEach((r, i) => {
+    if (i === 3) tb.append(h('tr', { class: 'gap' }, h('td', { colspan: cols.length + 1 })));
+    tb.append(h('tr', {}, h('th', { scope: 'row' }, h('span', { class: 'v' }, (r.kind === 'ours' ? 'FETTUCCINE ' : '') + r.label.replace(' (cascade)', '')), h('span', { class: 'm' }, r.role)),
+      ...cols.map((c, j) => { const v = c.get(r); return v == null ? h('td', { class: 'na' }, missing(r, c)) : h('td', { class: v === best[j] ? 'best' : '' }, c.f(v, r)); })));
+  });
   const box = $('bestTable'); box.innerHTML = ''; box.append(t);
 }
 export function zooTable(Z) {
@@ -233,13 +237,11 @@ export function initAdaptation(F) {
       hover(r2, () => `<b>${sess}</b><br>finetuned ${(fz * 100).toFixed(1)}% WER<br>(${d.ntrials[i]} calibration sentences)`);
       el('text', { x: cx, y: H - m.b + 16, 'text-anchor': 'middle', text: sess.slice(5).replace('.', '/') }, s);
     });
-    el('line', { x1: m.l, x2: W - m.r, y1: y(d.pt_wer), y2: y(d.pt_wer), style: 'stroke:var(--fg);stroke-width:1;stroke-dasharray:4 4' }, s);
+    el('line', { x1: m.l, x2: W - m.r, y1: y(d.pt_wer), y2: y(d.pt_wer), style: 'stroke:var(--fg-2);stroke-width:1.5;stroke-dasharray:4 3' }, s);
     el('text', { x: (m.l + W) / 2, y: H - 6, 'text-anchor': 'middle', text: 'held-out day (2024)' }, s);
-    const lg = el('g', {}, s);
-    el('rect', { x: m.l + 4, y: m.t + 2, width: 9, height: 9, rx: 2, style: 'fill:var(--fg-3);fill-opacity:.55' }, lg); el('text', { x: m.l + 18, y: m.t + 10, class: 't2', text: 'zero-shot' }, lg);
-    el('rect', { x: m.l + 90, y: m.t + 2, width: 9, height: 9, rx: 2, style: `fill:${color()}` }, lg); el('text', { x: m.l + 104, y: m.t + 10, class: 't2', text: 'finetuned' }, lg);
-    el('line', { x1: m.l + 4, x2: m.l + 14, y1: m.t + 24, y2: m.t + 24, style: 'stroke:var(--fg);stroke-width:1;stroke-dasharray:3 2' }, lg);
-    el('text', { x: m.l + 18, y: m.t + 28, class: 't2', text: `WER on pretraining days ${(d.pt_wer * 100).toFixed(1)}%` }, lg);
+    // legend lives in the figure bar above the charts
+    $('ftSwatch').style.background = color();
+    $('ftPt').textContent = `WER on pretraining days (${(d.pt_wer * 100).toFixed(1)}%)`;
   }
   function lines(boxId, xsVals, labels, curves, xLabel, xLog) {
     const box = $(boxId); const W = fitW(box, 240, 420), H = 250, m = { l: 40, r: 10, t: 12, b: 40 };

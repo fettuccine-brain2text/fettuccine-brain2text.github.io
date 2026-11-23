@@ -8,9 +8,9 @@ window.FETTUCCINE = {
   backend: 'auto',
   // download the model in the background when the demo scrolls into view (desktop only)
   prefetch: true,
-  // Paper and arXiv links. Empty entries render as disabled buttons.
+  // Paper (NeurIPS page) and arXiv links. Empty entries render as disabled buttons.
   links: {
-    'paper-url': '',
-    'arxiv-url': '',
+    'paper-url': 'https://neurips.cc/virtual/2026/poster/150728',
+    'arxiv-url': 'https://arxiv.org/abs/2611.18561',
   },
 };
