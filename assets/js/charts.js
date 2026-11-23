@@ -12,7 +12,7 @@ function axisLog(s, x, y0, ticks, fmt) {
 // ------------------------------------------------------------ latency
 export function latencyChart(L) { const box = $('latChart'); responsive(box, () => drawLatency(L, box)); }
 function drawLatency(L, box) {
-  const W = fitW(box, 560), H = 360, m = { l: 14, r: 16, t: 14, b: 44 };
+  const W = fitW(box, 560), H = 470, m = { l: 14, r: 16, t: 10, b: 44 };
   const s = svg(box, W, H, 'Latency distributions on a log scale');
   const x = logs(10, 30000, m.l, W - m.r);
   axisLog(s, x, H - m.b, [10, 30, 100, 300, 1000, 3000, 10000, 30000], (t) => t >= 1000 ? t / 1000 + ' s' : t + ' ms');
@@ -24,12 +24,12 @@ function drawLatency(L, box) {
   ];
   const band = (H - m.t - m.b) / rows.length;
   rows.forEach((r, i) => {
-    const d = L[r.key], y0 = m.t + band * i + band * 0.62;
+    const hgt = band * 0.36, d = L[r.key], y0 = m.t + band * i + 30 + hgt;   // label, 14 px gap, cloud, points, then room before the next row
     // density on log axis
     const xsLog = []; for (let v = 1; v <= 4.5; v += 0.02) xsLog.push(v);
     const lv = d.values.map((v) => Math.log10(v)); const bw = 0.06;
     const dens = xsLog.map((u) => lv.reduce((a, v) => a + Math.exp(-0.5 * ((u - v) / bw) ** 2), 0));
-    const mx = Math.max(...dens), hgt = band * 0.5;
+    const mx = Math.max(...dens);
     const keep = dens.map((v) => v > mx * 0.004);
     const k0 = keep.indexOf(true), k1 = keep.lastIndexOf(true);
     const pts = xsLog.slice(k0, k1 + 1).map((u, k) => [x(10 ** u), y0 - (dens[k0 + k] / mx) * hgt]);
@@ -39,12 +39,12 @@ function drawLatency(L, box) {
     const gp = el('g', {}, s);
     let seed = 7 + i;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    for (const v of d.values) el('circle', { cx: x(v), cy: y0 + 6 + rnd() * band * 0.26, r: 1.4, style: `fill:${r.color};fill-opacity:.4` }, gp);
+    for (const v of d.values) el('circle', { cx: x(v), cy: y0 + 6 + rnd() * band * 0.2, r: 1.4, style: `fill:${r.color};fill-opacity:.4` }, gp);
     // median marker
-    el('line', { x1: x(d.median), x2: x(d.median), y1: y0 - 3, y2: y0 + band * 0.32 + 6, style: 'stroke:var(--fg);stroke-width:2' }, s);
-    el('text', { x: m.l + 2, y: y0 - hgt - 2, class: 't2', text: r.name }, s);
-    el('text', { x: W - m.r, y: y0 - hgt - 2, 'text-anchor': 'end', text: `median ${fmtMs(d.median)} · max ${fmtMs(d.max)}` }, s);
-    const hit = el('rect', { x: m.l, y: y0 - hgt, width: W - m.l - m.r, height: band * 0.85, style: 'fill:transparent' }, s);
+    el('line', { x1: x(d.median), x2: x(d.median), y1: y0 - 3, y2: y0 + band * 0.26 + 6, style: 'stroke:var(--fg);stroke-width:2' }, s);
+    el('text', { x: m.l + 2, y: y0 - hgt - 14, class: 't2', text: r.name }, s);
+    el('text', { x: W - m.r, y: y0 - hgt - 14, 'text-anchor': 'end', text: `median ${fmtMs(d.median)} · max ${fmtMs(d.max)}` }, s);
+    const hit = el('rect', { x: m.l, y: y0 - hgt - 26, width: W - m.l - m.r, height: band * 0.9, style: 'fill:transparent' }, s);
     hover(hit, () => `<b>${r.name}</b><br>median ${fmtMs(d.median)}<br>95th pct ${fmtMs(d.p95)} · 99th ${fmtMs(d.p99)}<br>slowest ${fmtMs(d.max)}<br>n = ${d.values.length}`);
   });
 }
@@ -130,7 +130,7 @@ function drawWER(rows, box) {
   const cw = box.clientWidth || 640, two = cw >= 620;
   box.innerHTML = '';
   box.classList.toggle('stack', !two);
-  const panels = [['wer_pub', 'T15 · brain-to-text ’25', 12], ['t12', 'T12 · brain-to-text ’24', 20]];
+  const panels = [['wer_pub', 'T15 · brain-to-text 2025', 12], ['t12', 'T12 · brain-to-text 2024', 20]];
   panels.forEach(([key, title, max], pi) => {
     const labels = !two || pi === 0;
     const W = two ? Math.floor((cw - 28) / 2) : cw, rowH = 34, m = { l: labels ? 168 : 8, r: 56, t: 30, b: 34 };
@@ -176,7 +176,7 @@ export function bestTable(Z) {
   rows.forEach((r, i) => {
     if (i === 3) tb.append(h('tr', { class: 'gap' }, h('td', { colspan: cols.length + 1 })));
     tb.append(h('tr', {}, h('th', { scope: 'row' }, h('span', { class: 'v' }, (r.kind === 'ours' ? 'FETTUCCINE ' : '') + r.label.replace(' (cascade)', '')), h('span', { class: 'm' }, r.role)),
-      ...cols.map((c, j) => { const v = c.get(r); return v == null ? h('td', { class: 'na' }, missing(r, c)) : h('td', { class: v === best[j] ? 'best' : '' }, c.f(v, r)); })));
+      ...cols.map((c, j) => { const v = c.get(r); return v == null ? h('td', { class: 'na', title: missing(r, c) }, '–') : h('td', { class: v === best[j] ? 'best' : '' }, c.f(v, r)); })));
   });
   const box = $('bestTable'); box.innerHTML = ''; box.append(t);
 }
@@ -287,12 +287,13 @@ function barPath(x, yTop, w, yBase) { const r = Math.min(3, w / 2, Math.max(0, y
 // ------------------------------------------------------------ recipe ablations (horizontal bars)
 export function recipeChart(R) { const box = $('recipeChart'); responsive(box, () => drawRecipe(R, box)); }
 function drawRecipe(R, box) {
-  const W = fitW(box, 400, 640), rowH = 26, m = { l: 190, r: 52, t: 6, b: 34 };
+  const W = fitW(box, 400, 640), rowH = 26, m = { l: 190, r: 52, t: 6, b: 48 };
   const H = m.t + m.b + rowH * R.length;
   const s = svg(box, W, H, 'Validation WER for each ablation of the recipe');
   const x = lin(0, 14, m.l, W - m.r);
   const g = el('g', { class: 'grid' }, s);
   for (const t of [0, 4, 8, 12]) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 16, 'text-anchor': 'middle', text: t + '%' }, s); }
+  el('text', { x: (x(0) + x(14)) / 2, y: H - 8, 'text-anchor': 'middle', text: 'validation word error rate' }, s);
   const base = R[0].val;
   R.forEach((r, i) => {
     const yc = m.t + rowH * i + rowH / 2, full = i === 0;

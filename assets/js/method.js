@@ -10,14 +10,14 @@ const ARCH = {   // keep the two descriptions the same shape, so the figure does
     enc: 'Whisper encoder', encSub: 'Transformer',
     dec: 'Whisper decoder', decSub: 'Transformer',
     bb: 'Pretrained Whisper, Tiny to Large v3 Turbo',
-    cap: 'Trained in two stages with a cross-entropy loss: the adapter first, then the adapter and LoRA together. The recognizer’s own weights stay frozen.',
+    cap: 'Trained in two stages with a cross-entropy loss: the adapter first, then the adapter and LoRA together. The ASR backbone’s own weights stay frozen.',
   },
   parakeet: {
     adapter: 'Convolutional subsampling\n5 M parameters',
     enc: 'FastConformer encoder', encSub: 'Conformer',
     dec: 'Transducer decoder', decSub: 'TDT or RNN-T',
     bb: 'Pretrained Parakeet, TDT 0.6B v2 and EOU 120M',
-    cap: 'Trained in two stages with a transducer loss: the adapter first, then the adapter and LoRA together. The recognizer’s own weights stay frozen.',
+    cap: 'Trained in two stages with a transducer loss: the adapter first, then the adapter and LoRA together. The ASR backbone’s own weights stay frozen.',
   },
 };
 export function pipeline() {

@@ -18,7 +18,7 @@ python3 serve.py   # opens http://localhost:8000
 
 - Code: [MIT](LICENSE)
 - Paper content, model weights and results: [CC BY-NC 4.0](LICENSE-CONTENT.md)
-- Neural recordings: Brain-to-Text '25 dataset, CC0
+- Neural recordings: brain-to-text 2025 dataset, CC0
 - Third-party components: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 
 © 2026 The FETTUCCINE authors

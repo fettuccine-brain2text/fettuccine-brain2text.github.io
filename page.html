@@ -89,9 +89,9 @@
 
   <div class="wrap">
     <div class="stats">
-      <div class="stat"><span class="v">48<small>ms</small></span><span class="k">per sentence on an iPhone</span></div>
-      <div class="stat"><span class="v">209<small>MB</small></span><span class="k">peak memory on the phone</span></div>
-      <div class="stat"><span class="v">4.39<small>%</small></span><span class="k">word error rate</span></div>
+      <div class="stat"><span class="v">48<small>ms</small></span><span class="k">fastest time per sentence on an iPhone</span></div>
+      <div class="stat"><span class="v">209<small>MB</small></span><span class="k">smallest peak memory on the phone</span></div>
+      <div class="stat"><span class="v">4.39<small>%</small></span><span class="k">lowest word error rate</span></div>
     </div>
     <details class="abstract">
       <summary>Read the abstract</summary>
@@ -104,8 +104,8 @@
   <section class="block" id="demo">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Decode attempted speech in your browser.</h2>
-        <p>Pick a sentence that participant T15 attempted to say and decode it from the recorded neural activity. The model runs in your browser.</p>
+        <h2>A live demo, in your browser.</h2>
+        <p>Pick a sentence that participant T15 attempted to say and decode it from the recorded neural activity. The model runs in your browser.<a class="fn" href="#demoNote" aria-describedby="demoNote">*</a></p>
         <a class="qr" id="qr" hidden><span class="qr-code"></span><span>Open on<br>your phone</span></a>
       </div>
 
@@ -135,19 +135,20 @@
           </div>
         </div>
       </div>
+      <p class="footnote" id="demoNote"><span>*</span>The demo runs FETTUCCINE Whisper Tiny, additionally quantized to 8-bit weights so it can run in a browser with ONNX Runtime Web. It is not one of the models evaluated in the paper and has not been optimized the same way, so its speed and accuracy here differ from the paper’s results (PyTorch on an NVIDIA A40, and Core ML on an iPhone 15 Pro Max). Recordings are from the brain-to-text 2025 dataset.</p>
     </div>
   </section>
 
   <section class="block" id="method">
     <div class="wrap">
       <div class="sec-head">
-        <h2>A speech recognizer that reads neural activity.</h2>
-        <p>Most brain-to-text decoders predict phonemes, then search over them with large language models, which needs a workstation. FETTUCCINE instead reuses a pretrained speech recognizer. A small Neural Adapter turns neural activity into input the recognizer can read, and LoRA tunes its encoder.</p>
+        <h2>We adapt ASR models to decode neural activity.</h2>
+        <p>Most brain-to-text decoders predict phonemes, then convert them into words using large language models, which requires workstation-level compute. FETTUCCINE instead reuses pretrained automatic speech recognition (ASR) models. A small Neural Adapter turns neural activity into input the ASR backbone can read, and LoRA tunes its encoder.</p>
       </div>
 
       <figure class="card fig">
         <div class="fig-bar">
-          <div class="seg" role="group" aria-label="Speech recognizer">
+          <div class="seg" role="group" aria-label="ASR backbone">
             <button type="button" data-arch="whisper" aria-pressed="true">Whisper</button>
             <button type="button" data-arch="parakeet" aria-pressed="false">Parakeet</button>
           </div>
@@ -173,8 +174,8 @@
   <section class="block" id="augment">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Varying each word during training.</h2>
-        <p>People stretch, rush and stress individual words. To teach the model this variation, we estimate where each word falls in the neural activity, then warp, scale or crop words during training.</p>
+        <h2>Word-level augmentations drive down word error rates.</h2>
+        <p>People stretch, rush, and stress individual words. To teach the model this variation, we estimate where each word falls in the neural activity, then warp, scale, or crop words during training.</p>
       </div>
 
       <figure class="card fig">
@@ -199,8 +200,8 @@
   <section class="block" id="results">
     <div class="wrap">
       <div class="sec-head">
-        <h2>More accurate than previous end-to-end decoders.</h2>
-        <p>Our most accurate model reaches a 4.39% word error rate on T15, against 8.70% for the best previous end-to-end decoder, and leads on T12 as well. Cascades that search with a large language model remain ahead on T12.</p>
+        <h2>The most accurate end-to-end brain-to-text decoders.</h2>
+        <p>Our most accurate model reaches a 4.39% word error rate on brain-to-text 2025 (participant T15), against 8.70% for the best previous end-to-end decoder. It also leads on brain-to-text 2024 (participant T12).</p>
       </div>
 
       <figure class="card fig">
@@ -222,8 +223,8 @@
   <section class="block" id="latency">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Latency that stays low on every sentence.</h2>
-        <p>Without a language-model search, decoding time stays low and steady. The cascade’s search usually takes a fraction of a second, but sometimes more than ten.</p>
+        <h2>Consistent, low latency for every sentence.</h2>
+        <p>Without a language-model search, decoding time stays low and steady. Cascaded models are inconsistent, with a long tail of sentences that take multiple seconds.</p>
       </div>
 
       <figure class="card fig">
@@ -240,8 +241,8 @@
   <section class="block" id="mobile">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Small enough to run on an iPhone.</h2>
-        <p>Every variant runs on an iPhone 15 Pro Max, in 209 to 676 MB. The cascade needs about 320 GB.</p>
+        <h2>Small enough to run on a phone.</h2>
+        <p>Every variant runs on an iPhone 15 Pro Max, in 209 to 676 MB of memory and 48 ms to 3 s per sentence. Cascaded models need about 320 GB.</p>
       </div>
 
       <figure class="card fig">
@@ -281,8 +282,8 @@
   <section class="block" id="inside">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Tracing each word back to the electrodes.</h2>
-        <p>Gradient saliency shows which electrodes and moments each decoded word relies on. Silencing the most salient electrodes hurts accuracy far more than silencing random ones.</p>
+        <h2>Saliency maps show which electrodes matter.</h2>
+        <p>Gradient saliency shows which electrodes and moments each decoded word relies on. Silencing the most salient electrodes hurts accuracy far more than silencing random ones.<a class="fn" href="#salNote" aria-describedby="salNote">*</a></p>
       </div>
 
       <figure class="card fig">
@@ -321,13 +322,14 @@
           <div id="ablChart"></div>
         </div>
       </figure>
+      <p class="footnote" id="salNote"><span>*</span>The saliency maps and electrode-silencing results here were recomputed for the in-browser Whisper Tiny on validation sentences. The paper’s analysis uses Whisper Base and Parakeet EOU.</p>
     </div>
   </section>
 
   <section class="block" id="cite">
     <div class="wrap">
       <div class="sec-head">
-        <h2>Cite this work.</h2>
+        <h2>Cite our work.</h2>
       </div>
       <div class="bib">
         <pre id="bibtex">@inproceedings{mccartdeevi2026fettuccine,
@@ -344,11 +346,7 @@
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <p><b>About the demos.</b> To run in a browser, the live demo uses the smallest variant, FETTUCCINE Whisper Tiny, additionally quantized to 8-bit weights and run with ONNX Runtime Web. This is for the demo only. The paper’s results come from the models benchmarked in PyTorch on an NVIDIA A40 and with Core ML on an iPhone 15 Pro Max; speeds measured here depend on your device and browser and are not comparable with either. The saliency maps and electrode-silencing results on this page were recomputed for Whisper Tiny on validation sentences (the paper uses Whisper Base and Parakeet EOU), and the augmentation example applies the paper’s T15 Whisper settings to one sentence. All recordings are from the Brain-to-Text ’25 dataset.</p>
-  </div>
-</footer>
+<footer></footer>
 
 <div class="tip" id="tip" hidden></div>
 <script src="assets/js/config.js"></script>
