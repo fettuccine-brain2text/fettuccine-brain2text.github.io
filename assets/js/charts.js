@@ -126,8 +126,14 @@ function drawMemory(M, box, [y0, y1, yTicks]) {
   for (const t of yTicks) { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 10, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
   el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'peak memory (log scale)' }, s);
   el('text', { x: 14, y: (m.t + H - m.b) / 2, transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})`, 'text-anchor': 'middle', text: 'word error rate' }, s);
-  for (const p of M) {
-    const cx = x(p.mem_gb), cy = y(p.wer);
+  // points that would sit on top of each other (on T12, Whisper Small and Parakeet EOU) are
+  // nudged apart sideways so both stay visible; the tooltip keeps the exact values
+  const pts = M.map((p) => ({ p, cx: x(p.mem_gb), cy: y(p.wer) }));
+  pts.forEach((a, i) => pts.slice(i + 1).forEach((b) => {
+    const dx = b.cx - a.cx;
+    if (Math.hypot(dx, b.cy - a.cy) < 12) { const k = (12 - Math.abs(dx)) / 2 * (dx >= 0 ? 1 : -1); a.cx -= k; b.cx += k; }
+  }));
+  for (const { p, cx, cy } of pts) {
     const color = p.kind === 'ours' ? (p.family === 'parakeet' ? C.parakeet : C.whisper) : 'var(--fg-3)';
     const mk = el('circle', { cx, cy, r: 5.5, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s);
     const [dx, dy, anchor] = p.lab || [10, 4, 'start'];

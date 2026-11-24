@@ -349,8 +349,6 @@ function renderBrain() {
   const s = el('svg', { viewBox: '0 0 1000 360', role: 'img', 'aria-label': 'Left hemisphere of participant T15 with the four electrode arrays: 55b on the middle precentral gyrus, d6v and v6v on ventral premotor cortex, and area 4 on primary motor cortex' }, box);
   el('image', { href: BASE + 'img/t15_brain.webp', x: 0, y: 26, width: 360, height: 308.5, class: 'b-img' }, s);
   el('rect', { x: 108, y: 82, width: 111, height: 99, rx: 3, class: 'b-box' }, s);
-  const cite = el('a', { href: 'https://doi.org/10.1056/NEJMoa2314132', target: '_blank', rel: 'noopener' }, s);
-  el('text', { x: 4, y: 354, class: 'b-cite', text: 'Participant T15 · adapted with permission from Card et al., 2024' }, cite);
   el('line', { x1: 219, y1: 82, x2: 450, y2: 10, class: 'b-link' }, s);
   el('line', { x1: 219, y1: 181, x2: 450, y2: 350, class: 'b-link' }, s);
   el('clipPath', { id: 'bZoomClip' }, el('defs', {}, s)).append(el('rect', { x: 450, y: 10, width: 380, height: 340, rx: 12 }));
@@ -366,6 +364,8 @@ function renderBrain() {
     m.addEventListener('pointerleave', () => highlightArray(null));
     hover(m, () => `<b>${a.name}</b> · ${a.region}<br>64 electrodes<br><span style="opacity:.7">color: mean saliency of the array</span>`);
   }
+  // credit as a text line under the figure (wraps on narrow screens instead of running under the zoom)
+  box.append(h('a', { class: 'b-cite', href: 'https://doi.org/10.1056/NEJMoa2314132', target: '_blank', rel: 'noopener' }, 'Participant T15 · adapted with permission from Card et al., 2024'));
 }
 function highlightArray(name) {
   document.querySelectorAll('#arrays .array, #brain .mk').forEach((n) => n.classList.toggle('hl', n.dataset.a === name));
