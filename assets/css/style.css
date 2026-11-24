@@ -190,6 +190,7 @@ details.more summary::after { content: ""; width: 0.42em; height: 0.42em; border
 details.more[open] summary::after { transform: translateY(0.1em) rotate(-135deg); }
 details.more summary:hover { color: var(--accent-2); }
 details.more > div { margin-top: 12px; }
+details.more > .more-note { margin: 4px 0 0; font-size: 0.875rem; color: var(--fg-3); }
 
 /* ---------- demo ---------- */
 .demo { display: grid; grid-template-columns: 290px minmax(0, 1fr); overflow: hidden; }
