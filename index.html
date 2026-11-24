@@ -72,7 +72,7 @@
 <header class="hero" id="top">
   <div class="wrap">
     <p class="eyebrow">NeurIPS 2026 Spotlight</p>
-    <h1>FETTUCCINE</h1>
+    <h1><a class="name-hint" href="#name" title="Fast and Efficient Thought-to-Text Unified Cross-modal Communication Interfacing via Neural Embeddings">FETTUCCINE</a></h1>
     <p class="subtitle">Fast and efficient brain&#8209;to&#8209;text decoding on mobile devices</p>
     <p class="authors">
       <a href="https://snel.ai/author/jonathan-mccart/" target="_blank" rel="noopener">Jonathan D. McCart</a><sup>1,2,*</sup>
@@ -200,6 +200,7 @@
 
       <details class="more">
         <summary>What each part contributes</summary>
+        <p class="more-note">Ablations of Whisper Tiny on T15 (brain-to-text 2025).</p>
         <div id="recipeChart"></div>
       </details>
     </div>
@@ -209,7 +210,7 @@
     <div class="wrap">
       <div class="sec-head">
         <h2>The most accurate end-to-end brain-to-text decoders.</h2>
-        <p>Our most accurate model reaches a 4.39% word error rate on brain-to-text 2025 (participant T15), against 8.70% for the best previous end-to-end decoder. It also leads on brain-to-text 2024 (participant T12).</p>
+        <p>Our most accurate model reaches a 4.39% word error rate on brain-to-text 2025 (participant T15), against 8.70% for the best previous end-to-end decoder. Among end-to-end decoders, it also leads on brain-to-text 2024 (participant T12).</p>
       </div>
 
       <figure class="card fig">
@@ -255,9 +256,14 @@
 
       <figure class="card fig">
         <div class="fig-bar">
+          <div class="seg" role="group" aria-label="Participant">
+            <button type="button" data-mempart="t15" aria-pressed="true">T15</button>
+            <button type="button" data-mempart="t12" aria-pressed="false">T12</button>
+          </div>
           <div class="legend"><span><i style="background:var(--whisper)"></i>FETTUCCINE · Whisper</span><span><i style="background:var(--parakeet)"></i>FETTUCCINE · Parakeet</span><span><i style="background:var(--fg-3)"></i>other methods</span></div>
         </div>
         <div id="memChart"></div>
+        <figcaption id="memNote"></figcaption>
       </figure>
     </div>
   </section>
@@ -300,7 +306,10 @@
           <div class="cbar"><span>low</span><i id="cbarSwatch"></i><span>high</span></div>
         </div>
         <div class="sal">
-          <div class="arrays" id="arrays"></div>
+          <div class="sal-top">
+            <div class="brain" id="brain"></div>
+            <div class="arrays" id="arrays"></div>
+          </div>
           <div style="min-width:0"><canvas id="timeSal" height="200" aria-label="Saliency of each word over time"></canvas></div>
         </div>
       </figure>
@@ -354,7 +363,16 @@
   </section>
 </main>
 
-<footer></footer>
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <p id="name"><b class="wordmark">FETTUCCINE</b> · <b>F</b>ast and <b>E</b>fficient <b>T</b>hought-to-<b>T</b>ext <b>U</b>nified <b>C</b>ross-modal <b>C</b>ommunication <b>I</b>nterfacing via <b>N</b>eural <b>E</b>mbeddings</p>
+      <p>We thank participants T12, T15, and T16 and their families. Neural recordings: brain-to-text 2025 (<a href="https://doi.org/10.1056/NEJMoa2314132" target="_blank" rel="noopener">Card et al., 2024</a>) and brain-to-text 2024 (<a href="https://doi.org/10.1038/s41586-023-06377-x" target="_blank" rel="noopener">Willett et al., 2023</a>) datasets, both CC0.</p>
+      <p>P.I.D. and C.A.M. were supported by the Georgia Tech/Emory NIH/NIBIB Training Program in Computational Neural-engineering (T32EB025816). N.H.K. acknowledges financial support from the Fonds de recherche du Québec (Secteur NT, grant 2009130) and computational resources provided by Mila and the Digital Research Alliance of Canada. C.P. was supported by the NIH Director’s New Innovator Award (DP2NS127291).</p>
+      <p>Code: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>. Paper content, model weights, and results: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE-CONTENT.md" target="_blank" rel="noopener">CC BY-NC 4.0</a>. <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>. © 2026 The FETTUCCINE authors.</p>
+    </div>
+  </div>
+</footer>
 
 <div class="tip" id="tip" hidden></div>
 <script src="assets/js/config.js"></script>

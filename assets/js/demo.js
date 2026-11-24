@@ -2,11 +2,11 @@
 import { h, tokens, divergingLUT, seqColor, f16ToF32, normalize, renderDiff, fmtMs, hover, svg, el, logs, sleep, prefersReduced, fitW, responsive } from './util.js';
 
 const KS = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256];
-const ARRAYS = [ // display order follows the paper's figures
-  { name: '55b', base: 128, region: 'middle precentral gyrus' },
-  { name: 'd6v', base: 192, region: 'dorsal 6v (premotor)' },
-  { name: 'area 4', base: 64, region: 'primary motor cortex' },
-  { name: 'v6v', base: 0, region: 'ventral 6v (premotor)' },
+const ARRAYS = [ // display order follows the paper's figures. xy: array site in the brain figure; color: paper Fig. 5
+  { name: '55b', base: 128, region: 'middle precentral gyrus', xy: [675, 78], color: '#cf5a9b' },
+  { name: 'd6v', base: 192, region: 'dorsal 6v (premotor)', xy: [657, 143], color: '#3a9160' },
+  { name: 'area 4', base: 64, region: 'primary motor cortex', xy: [618, 232], color: '#3d84c4' },
+  { name: 'v6v', base: 0, region: 'ventral 6v (premotor)', xy: [596, 293], color: '#7cc596' },
 ];
 const CFG = window.FETTUCCINE || {};
 const BASE = 'assets/';
@@ -325,14 +325,50 @@ function renderArrays() {
         hover(b, () => `<b>Electrode ${e}</b> · ${a.name}<br>${a.region}<br>rank ${rankPos.get(e)} of 256 across 200 sentences<br><span style="opacity:.7">click to silence</span>`);
         g.append(b);
       }
-      box.append(h('div', { class: 'array' }, h('div', { class: 'an' }, h('b', {}, a.name), h('span', {}, a.region.split(' (')[0])), g));
+      const arr = h('div', { class: 'array', 'data-a': a.name }, h('div', { class: 'an', style: `--arr:${a.color}` }, h('b', {}, a.name), h('span', {}, a.region.split(' (')[0])), g);
+      arr.addEventListener('pointerenter', () => highlightArray(a.name));
+      arr.addEventListener('pointerleave', () => highlightArray(null));
+      box.append(arr);
     }
+    renderBrain();
   }
   box.querySelectorAll('button[data-e]').forEach((b) => {
     const e = +b.dataset.e; b.style.background = seqColor(T, Math.min(1, v[e]));
     b.classList.toggle('off', drop.has(e));
   });
+  ARRAYS.forEach((a) => {
+    let m = 0; for (let i = 0; i < 64; i++) m += Math.min(1, v[a.base + i]);
+    $('brain').querySelector(`[data-a="${a.name}"] rect`).style.fill = seqColor(T, m / 64);
+  });
   $('cbarSwatch').style.background = `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((x) => seqColor(T, x)).join(',')})`;
+}
+// T15's brain with the four arrays (images from paper Fig. 5A): the whole hemisphere, a zoom on the
+// arrays, and a square on each array site that shows the array's mean saliency.
+function renderBrain() {
+  const box = $('brain');
+  const s = el('svg', { viewBox: '0 0 1000 360', role: 'img', 'aria-label': 'Left hemisphere of participant T15 with the four electrode arrays: 55b on the middle precentral gyrus, d6v and v6v on ventral premotor cortex, and area 4 on primary motor cortex' }, box);
+  el('image', { href: BASE + 'img/t15_brain.webp', x: 0, y: 26, width: 360, height: 308.5, class: 'b-img' }, s);
+  el('rect', { x: 108, y: 82, width: 111, height: 99, rx: 3, class: 'b-box' }, s);
+  el('line', { x1: 219, y1: 82, x2: 450, y2: 10, class: 'b-link' }, s);
+  el('line', { x1: 219, y1: 181, x2: 450, y2: 350, class: 'b-link' }, s);
+  el('clipPath', { id: 'bZoomClip' }, el('defs', {}, s)).append(el('rect', { x: 450, y: 10, width: 380, height: 340, rx: 12 }));
+  el('image', { href: BASE + 'img/t15_brain_zoom.webp', x: 450, y: 10, width: 380, height: 340, 'clip-path': 'url(#bZoomClip)', class: 'b-img' }, s);
+  el('rect', { x: 450, y: 10, width: 380, height: 340, rx: 12, class: 'b-frame' }, s);
+  for (const a of ARRAYS) {
+    const [x, y] = a.xy, m = el('g', { class: 'mk', 'data-a': a.name }, s);
+    el('line', { x1: x + 14, y1: y, x2: 846, y2: y, class: 'b-lead' }, m);
+    el('rect', { x: x - 12, y: y - 12, width: 24, height: 24, rx: 3 }, m);
+    el('text', { x: 852, y: y + 1, class: 'b-name', style: `fill:${a.color}`, text: a.name }, m);
+    el('text', { x: 852, y: y + 18, class: 'b-region', text: a.region.split(' (')[0] }, m);
+    m.addEventListener('pointerenter', () => highlightArray(a.name));
+    m.addEventListener('pointerleave', () => highlightArray(null));
+    hover(m, () => `<b>${a.name}</b> · ${a.region}<br>64 electrodes<br><span style="opacity:.7">color: mean saliency of the array</span>`);
+  }
+  // credit as a text line under the figure (wraps on narrow screens instead of running under the zoom)
+  box.append(h('a', { class: 'b-cite', href: 'https://doi.org/10.1056/NEJMoa2314132', target: '_blank', rel: 'noopener' }, 'Participant T15 · adapted with permission from Card et al., 2024'));
+}
+function highlightArray(name) {
+  document.querySelectorAll('#arrays .array, #brain .mk').forEach((n) => n.classList.toggle('hl', n.dataset.a === name));
 }
 function drawTimeSal() {
   const cv = $('timeSal'), ctx = cv.getContext('2d'), t = S.cur; if (!t) return;

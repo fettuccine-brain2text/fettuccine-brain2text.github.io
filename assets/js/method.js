@@ -25,6 +25,7 @@ export function pipeline() {
     const A = ARCH[k];
     document.querySelectorAll('#method [data-a]').forEach((n) => { n.textContent = A[n.dataset.a]; });
     document.querySelectorAll('[data-arch]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.arch === k)));
+    $('arch').closest('figure').dataset.backbone = k;   // Parakeet: green, as in the other figures
   };
   document.querySelectorAll('[data-arch]').forEach((b) => b.addEventListener('click', () => set(b.dataset.arch)));
   set('whisper');
