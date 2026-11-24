@@ -1,7 +1,7 @@
 // The FETTUCCINE phone: an iPhone 15 Pro Max (assets/css/phone.css) that replays recorded trials.
 // Each trial: the recording fills in ("Listening"), typing dots appear ("Decoding"), then the decoded
 // sentence arrives as a message with its measured iPhone latency. Every frame is a pure function of
-// time, so the same code drives the website (real time), the link preview and the tweeprint video
+// time, so the same code drives the website (real time), the link preview, and the tweeprint video
 // (frame by frame). Shared by the website and the tweeprint; keep the copies identical.
 //
 //   const phone = mountPhone(container, { avatar }); // builds the device; avatar: optional image URL for the header

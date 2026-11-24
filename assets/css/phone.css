@@ -7,7 +7,7 @@
      bottom safe area 34 pt; home indicator 134 x 5 pt, 8 pt above the bottom edge
    Messages follow iMessage: 17 pt text on a 22 pt line, 18 pt corner radius, 7/12 pt padding, a tail on each bubble.
    Text is the system font (SF Pro on Apple devices); --phone-font overrides it for renders made without SF. --t scales the messages like iOS Dynamic Type:
-   1 = the default "Large" size (17 pt), 1.353 = "xxxLarge" (23 pt), used on the page, the tweet and the link preview.
+   1 = the default "Large" size (17 pt), 1.353 = "xxxLarge" (23 pt), used on the page, the tweet, and the link preview.
    Set --u on .phone (or an ancestor); colours can be overridden with the --phone-* properties. */
 .phone {
   --u: 0.7px;

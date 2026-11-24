@@ -6,15 +6,20 @@ The paper content on this site, and the model weights in `assets/model/`, are li
 [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/),
 the same license as the paper. This covers:
 
-- the text, figures and tables reproduced from the paper, and the numbers behind the charts (`assets/data/site.json`);
-- the decoded outputs, saliency maps and lesion results in `assets/data/`;
-- the trained model weights (`assets/model/`), which are fine-tuned from Whisper (MIT, see `THIRD_PARTY_NOTICES.md`);
-- `assets/img/`.
+- the text, figures, and tables reproduced from the paper, and the numbers behind the charts (`assets/data/site.json`);
+- the decoded outputs, saliency maps, and lesion results in `assets/data/`;
+- the trained model weights (`assets/model/`), which are finetuned from Whisper (MIT, see `THIRD_PARTY_NOTICES.md`);
+- `assets/img/`, except the brain images below.
 
 Please cite the paper when you reuse them (see the Citation section of the site).
 
 The neural recordings in `assets/data/trials/*.bin.gz` and `assets/data/hero.json` are excerpts of the
-Brain-to-Text '25 dataset (Card et al., *NEJM* 2024; [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.dncjsxm85)),
-released under CC0 1.0.
+brain-to-text 2025 dataset (participant T15; Card et al., *NEJM* 2024; [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.dncjsxm85)),
+released under CC0 1.0. Results for participant T12 come from models trained on the brain-to-text 2024 dataset
+(Willett et al., *Nature* 2023; [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.x69p8czpq)), also released under CC0 1.0.
+
+The brain images `assets/img/t15_brain.webp` and `assets/img/t15_brain_zoom.webp` (participant T15's array locations)
+are adapted with permission from Card et al., *NEJM* 2024 (<https://doi.org/10.1056/NEJMoa2314132>). They are not
+covered by this license.
 
 The website code is licensed separately under the MIT License (`LICENSE`).

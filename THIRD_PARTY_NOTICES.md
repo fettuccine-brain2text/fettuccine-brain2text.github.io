@@ -59,9 +59,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Whisper (whisper-tiny.en)
+## Whisper Tiny (`whisper-tiny.en`)
 
-The model in `assets/model/` is fine-tuned from OpenAI's whisper-tiny.en weights, and `assets/model/tokenizer.json` is derived from its tokenizer. <https://github.com/openai/whisper>
+The model in `assets/model/` is finetuned from OpenAI's Whisper Tiny weights (`whisper-tiny.en`), and `assets/model/tokenizer.json` is derived from its tokenizer. <https://github.com/openai/whisper>
 
 ```
 MIT License

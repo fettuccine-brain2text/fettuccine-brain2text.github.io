@@ -116,7 +116,7 @@ function ensureModel() {
           S.place = { enc: m.enc, dec: m.dec };
           const cpu = `CPU (${m.threads} thread${m.threads > 1 ? 's' : ''})`, where = (p) => (p === 'webgpu' ? 'GPU' : cpu);
           S.where = m.enc === 'webgpu' || m.dec === 'webgpu' ? 'GPU' : 'CPU';
-          setEngine('live', `Live · your ${S.where}`, 'Whisper-Tiny, int8 · ' + (m.enc === m.dec
+          setEngine('live', `Live · your ${S.where}`, 'Whisper Tiny, int8 · ' + (m.enc === m.dec
             ? (m.enc === 'webgpu' ? 'WebGPU' : cpu + ', WebAssembly')
             : `encoder on ${where(m.enc)}, decoder on ${where(m.dec)}`) + ' · model saved in this browser');
           if (m.bench && Object.keys(m.bench).length) console.info('[fettuccine] backend timings (ms):', m.bench, '→', S.place);
