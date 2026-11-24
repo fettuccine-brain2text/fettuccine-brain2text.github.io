@@ -265,7 +265,7 @@ details.more > div { margin-top: 12px; }
 .array .an { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--fg-3); }
 .array .an b { color: var(--fg); font-weight: 600; }
 @media (max-width: 1100px) { .array .an span { display: none; } }
-.grid8 { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; aspect-ratio: 1; }
+.grid8 { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; aspect-ratio: 1; padding: 4px; border: 1px solid var(--line-2); border-radius: 6px; }
 .grid8 button { border: 0; padding: 0; border-radius: 3px; cursor: pointer; position: relative; background: var(--bg-3); }
 .grid8 button.off::after { content: ""; position: absolute; inset: 24%; border: 1.5px solid var(--fg); border-radius: 50%; }
 .grid8 button:hover { outline: 1.5px solid var(--fg); outline-offset: -1px; z-index: 1; }
