@@ -12,15 +12,15 @@ function axisLog(s, x, y0, ticks, fmt) {
 // ------------------------------------------------------------ latency
 export function latencyChart(L) { const box = $('latChart'); responsive(box, () => drawLatency(L, box)); }
 function drawLatency(L, box) {
-  const W = fitW(box, 560), H = 470, m = { l: 14, r: 16, t: 10, b: 44 };
+  const W = fitW(box, 280), narrow = W < 520, H = 470, m = { l: 14, r: 16, t: 10, b: 44 };
   const s = svg(box, W, H, 'Latency distributions on a log scale');
   const x = logs(10, 30000, m.l, W - m.r);
-  axisLog(s, x, H - m.b, [10, 30, 100, 300, 1000, 3000, 10000, 30000], (t) => t >= 1000 ? t / 1000 + ' s' : t + ' ms');
+  axisLog(s, x, H - m.b, narrow ? [10, 100, 1000, 10000] : [10, 30, 100, 300, 1000, 3000, 10000, 30000], (t) => t >= 1000 ? t / 1000 + ' s' : t + ' ms');
   el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'latency per sentence (log scale)' }, s);
   const rows = [
-    { key: 'whisper-base', name: 'FETTUCCINE · Whisper Base', color: C.whisper },
-    { key: 'parakeet-eou', name: 'FETTUCCINE · Parakeet EOU', color: C.parakeet },
-    { key: 'gru', name: 'GRU + 5-gram + LLM (cascade)', color: C.cascade },
+    { key: 'whisper-base', name: 'FETTUCCINE · Whisper Base', short: 'Whisper Base', color: C.whisper },
+    { key: 'parakeet-eou', name: 'FETTUCCINE · Parakeet EOU', short: 'Parakeet EOU', color: C.parakeet },
+    { key: 'gru', name: 'GRU + 5-gram + LLM (cascade)', short: 'GRU + LLM (cascade)', color: C.cascade },
   ];
   const band = (H - m.t - m.b) / rows.length;
   rows.forEach((r, i) => {
@@ -42,7 +42,7 @@ function drawLatency(L, box) {
     for (const v of d.values) el('circle', { cx: x(v), cy: y0 + 6 + rnd() * band * 0.2, r: 1.4, style: `fill:${r.color};fill-opacity:.4` }, gp);
     // median marker
     el('line', { x1: x(d.median), x2: x(d.median), y1: y0 - 3, y2: y0 + band * 0.26 + 6, style: 'stroke:var(--fg);stroke-width:2' }, s);
-    el('text', { x: m.l + 2, y: y0 - hgt - 14, class: 't2', text: r.name }, s);
+    el('text', { x: m.l + 2, y: y0 - hgt - 14, class: 't2', text: narrow ? r.short : r.name }, s);
     el('text', { x: W - m.r, y: y0 - hgt - 14, 'text-anchor': 'end', text: `median ${fmtMs(d.median)} · max ${fmtMs(d.max)}` }, s);
     const hit = el('rect', { x: m.l, y: y0 - hgt - 26, width: W - m.l - m.r, height: band * 0.9, style: 'fill:transparent' }, s);
     hover(hit, () => `<b>${r.name}</b><br>median ${fmtMs(d.median)}<br>95th pct ${fmtMs(d.p95)} · 99th ${fmtMs(d.p99)}<br>slowest ${fmtMs(d.max)}<br>n = ${d.values.length}`);
@@ -63,7 +63,8 @@ export function initRace(P) {   // P: per-sentence latencies, aligned across dec
     const bar = h('div', { class: 'bar' }, h('i', { style: `background:${r.color}` }));
     const t = h('span', { class: 't' }, '–');
     const [pre, rest] = r.name.includes(' · ') ? r.name.split(' · ') : ['', r.name];
-    box.append(h('div', { class: 'race-row' }, h('span', { class: 'n', title: r.name }, pre ? h('span', { class: 'long' }, pre + ' · ') : null, rest), bar, t));
+    const name = rest === 'GRU + 5-gram + LLM' ? ['GRU + ', h('span', { class: 'long' }, '5-gram + '), 'LLM'] : [rest];   // narrow screens drop the 'long' parts
+    box.append(h('div', { class: 'race-row' }, h('span', { class: 'n', title: r.name }, pre ? h('span', { class: 'long' }, pre + ' · ') : null, ...name), bar, t));
     return { bar: bar.firstChild, t };
   });
   let running = false;
@@ -118,11 +119,11 @@ export function memoryChart(M, Z) {
   responsive(box, () => set(part));
 }
 function drawMemory(M, box, [y0, y1, yTicks]) {
-  const W = fitW(box, 620), H = 420, m = { l: 56, r: 24, t: 16, b: 48 };
+  const W = fitW(box, 280), narrow = W < 520, H = narrow ? 360 : 420, m = { l: narrow ? 44 : 56, r: narrow ? 8 : 24, t: 16, b: 48 };
   const s = svg(box, W, H, 'Word error rate versus peak memory');
   const x = logs(0.1, 1000, m.l, W - m.r), y = lin(y0, y1, H - m.b, m.t);
   const g = el('g', { class: 'grid' }, s);
-  for (const t of [0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? t * 1000 + ' MB' : t + ' GB' }, s); }
+  for (const t of narrow ? [0.1, 1, 10, 100, 1000] : [0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? t * 1000 + ' MB' : t >= 1000 ? t / 1000 + ' TB' : t + ' GB' }, s); }
   for (const t of yTicks) { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 10, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
   el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'peak memory (log scale)' }, s);
   el('text', { x: 14, y: (m.t + H - m.b) / 2, transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})`, 'text-anchor': 'middle', text: 'word error rate' }, s);
@@ -137,57 +138,60 @@ function drawMemory(M, box, [y0, y1, yTicks]) {
     const color = p.kind === 'ours' ? (p.family === 'parakeet' ? C.parakeet : C.whisper) : 'var(--fg-3)';
     const mk = el('circle', { cx, cy, r: 5.5, style: `fill:${color};stroke:var(--bg-2);stroke-width:2` }, s);
     const [dx, dy, anchor] = p.lab || [10, 4, 'start'];
-    el('text', { x: cx + dx, y: cy + dy, 'text-anchor': anchor, class: p.kind === 'ours' ? 't1' : 't2', text: p.name }, s);
+    const lab = el('text', { x: cx + dx, y: cy + dy, 'text-anchor': anchor, class: p.kind === 'ours' ? 't1' : 't2', text: p.name }, s);
+    const bb = lab.getBBox();   // keep labels inside the chart on narrow screens: flip to the other side of the point
+    if (bb.x + bb.width > W - 2) { lab.setAttribute('x', cx - 10); lab.setAttribute('text-anchor', 'end'); }
+    else if (bb.x < 2) { lab.setAttribute('x', cx + 10); lab.setAttribute('text-anchor', 'start'); }
     hover(mk, () => `<b>${p.name}</b><br>${p.wer.toFixed(2)}% WER · ${p.mem_gb < 1 ? Math.round(p.mem_gb * 1024) + ' MB' : p.mem_gb.toFixed(1) + ' GB'}<br>${p.note}`);
   }
 }
 
 // ------------------------------------------------------------ accuracy (Table 1)
-// Three FETTUCCINE variants, each best at something, against the best end-to-end decoder and the best cascade.
+// Three FETTUCCINE variants, each best at something, against the best previous end-to-end decoders and the best cascade.
 const PICK = [
-  { name: 'Whisper Small', role: 'Most accurate' },
-  { name: 'Parakeet TDT · TensorRT', role: 'Fastest', label: 'Parakeet TDT (TensorRT)' },
-  { name: 'Whisper Tiny', role: 'Smallest' },
-  { name: 'BrainWhisperer E2E (cross)', role: 'Best end-to-end baseline', label: 'BrainWhisperer' },
-  { name: 'BIT E2E (Aero1-Audio 1.5B)', role: 'End-to-end baseline', label: 'BIT (Aero1-Audio 1.5B)' },
-  { name: 'LightBeam (Transformer) + 4-gram + Llama-3.2-1B', role: 'Best cascade', label: 'LightBeam + LLM (cascade)' },
+  { name: 'Whisper Small', role: 'Most accurate on T15' },
+  { name: 'Parakeet TDT', role: 'Most accurate on T12' },
+  { name: 'Whisper Tiny', role: 'Smallest, fastest on an iPhone' },
+  { name: 'BrainWhisperer E2E (cross)', role: 'Best previous end-to-end on T15', label: 'BrainWhisperer' },
+  { name: 'BIT E2E (Aero1-Audio 1.5B)', role: 'Best previous end-to-end on T12', label: 'BIT (Aero1-Audio 1.5B)' },
+  { name: 'LightBeam (Transformer) + 4-gram + Llama-3.2-1B', role: 'Best cascaded model', label: 'LightBeam + LLM (cascade)' },
 ];
 const picked = (Z) => PICK.map((p) => ({ ...p, ...Z.rows.find((r) => r.name === p.name), label: p.label || p.name }));
 
-export function werChart(Z) { const box = $('werChart'); responsive(box, () => drawWER(picked(Z), box)); }
-function drawWER(rows, box) {
-  const cw = box.clientWidth || 640, two = cw >= 620;
-  box.innerHTML = '';
-  box.classList.toggle('stack', !two);
-  const panels = [['wer_pub', 'T15 · brain-to-text 2025', 12], ['t12', 'T12 · brain-to-text 2024', 20]];
-  panels.forEach(([key, title, max], pi) => {
-    const labels = !two || pi === 0;
-    const W = two ? Math.floor((cw - 28) / 2) : cw, rowH = 34, m = { l: labels ? 168 : 8, r: 56, t: 30, b: 34 };
-    const H = m.t + m.b + rowH * rows.length;
-    const cell = h('div', { class: 'pp' }); box.append(cell);
-    const s = svg(cell, W, H, `Test word error rate, ${title}`);
-    const x = lin(0, max, m.l, W - m.r);
-    el('text', { x: m.l, y: 14, class: 't1', text: title }, s);
-    const g = el('g', { class: 'grid' }, s);
-    for (let t = 0; t <= max; t += max > 12 ? 5 : 4) { el('line', { x1: x(t), x2: x(t), y1: m.t - 6, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 16, 'text-anchor': 'middle', text: t + '%' }, s); }
-    rows.forEach((r, i) => {
-      const yc = m.t + rowH * i + rowH / 2, ours = r.kind === 'ours';
-      if (i === 3) el('line', { x1: 0, x2: W, y1: yc - rowH / 2, y2: yc - rowH / 2, style: 'stroke:var(--line);stroke-width:1' }, s);
-      if (labels) el('text', { x: 0, y: yc + 4, class: ours ? 't1' : 't2', text: r.label.replace(' (cascade)', '') }, s);   // colour says FETTUCCINE
-      const v = r[key];
-      if (v == null) { el('text', { x: m.l + 4, y: yc + 4, text: 'not reported' }, s); return; }
-      const fill = ours ? (/Parakeet/.test(r.name) ? C.parakeet : C.whisper) : 'var(--fg-3)';
-      const bar = el('path', { d: hbar(x(0), yc - 8, x(v) - x(0), 16), style: `fill:${fill};fill-opacity:${ours ? 1 : r.group === 'cascade' ? 0.35 : 0.6}` }, s);
-      el('text', { x: x(v) + 6, y: yc + 4, class: 't1', text: v.toFixed(2) + '%' }, s);
-      hover(bar, () => `<b>${r.label}</b><br>${r.role}<br>${v.toFixed(2)}% test WER, ${title.split(' ·')[0]}`);
-    });
+// end-to-end decoders only, one participant at a time; the cascades are in the tables
+export function werChart(Z) {
+  const box = $('werChart'), rows = picked(Z).filter((r) => r.group !== 'cascade'); let part = 'wer_pub';
+  const set = (k) => {
+    part = k;
+    document.querySelectorAll('[data-werpart]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.werpart === k)));
+    drawWER(rows, box, k);
+  };
+  document.querySelectorAll('[data-werpart]').forEach((b) => b.addEventListener('click', () => set(b.dataset.werpart)));
+  responsive(box, () => set(part));
+}
+function drawWER(rows, box, key) {
+  const W = fitW(box, 280), narrow = W < 480, rowH = 34, max = key === 't12' ? 20 : 12, step = key === 't12' ? (narrow ? 10 : 5) : 4, who = key === 't12' ? 'T12' : 'T15';
+  const m = { l: narrow ? 150 : 200, r: 52, t: 6, b: 34 }, H = m.t + m.b + rowH * rows.length;
+  const s = svg(box, W, H, `Test word error rate of end-to-end decoders on ${who}`);
+  const x = lin(0, max, m.l, W - m.r);
+  const g = el('g', { class: 'grid' }, s);
+  for (let t = 0; t <= max; t += step) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 16, 'text-anchor': 'middle', text: t + '%' }, s); }
+  rows.forEach((r, i) => {
+    const yc = m.t + rowH * i + rowH / 2, ours = r.kind === 'ours', v = r[key];
+    if (i === 3) el('line', { x1: 0, x2: W, y1: yc - rowH / 2, y2: yc - rowH / 2, style: 'stroke:var(--line);stroke-width:1' }, s);
+    el('text', { x: 0, y: yc + 4, class: ours ? 't1' : 't2', text: r.label }, s);   // colour says FETTUCCINE
+    if (v == null) { el('text', { x: m.l + 4, y: yc + 4, text: 'not reported' }, s); return; }
+    const fill = ours ? (/Parakeet/.test(r.name) ? C.parakeet : C.whisper) : 'var(--fg-3)';
+    const bar = el('path', { d: hbar(x(0), yc - 8, x(v) - x(0), 16), style: `fill:${fill};fill-opacity:${ours ? 1 : 0.6}` }, s);
+    el('text', { x: x(v) + 6, y: yc + 4, class: 't1', text: v.toFixed(2) + '%' }, s);
+    hover(bar, () => `<b>${r.label}</b><br>${r.role}<br>${v.toFixed(2)}% test WER, ${who}`);
   });
 }
 
 // the same picks as a table, with speed and memory; the full table sits in a <details>
 const fmt = (v, d = 2) => v == null ? '–' : typeof v === 'string' ? v : v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 export function bestTable(Z) {
-  const rows = picked(Z).filter((r) => r.role !== 'End-to-end baseline');
+  const rows = picked(Z);
   const num = (t) => (t ? parseFloat((t.match(/[\d,.]+/) || [''])[0].replace(/,/g, '')) : undefined);
   const cols = [
     { k: 'T15 WER', get: (r) => r.wer_pub, f: (v) => fmt(v) + '%' },
@@ -197,7 +201,7 @@ export function bestTable(Z) {
     { k: 'Latency · iPhone', get: (r) => r.phone && r.phone.lat, f: (v) => fmt(v, 0) + ' ms' },
     { k: 'Memory · iPhone', get: (r) => r.phone && r.phone.mem, f: (v) => fmt(v, 0) + ' MB' },
   ];
-  const best = cols.map((c) => Math.min(...rows.map((r) => c.get(r)).filter((v) => v != null)));
+  const best = cols.map((c) => Math.min(...rows.filter((r) => r.kind === 'ours').map((r) => c.get(r)).filter((v) => v != null)));   // bold: best FETTUCCINE value, as in the full table
   const missing = (r, c) => (c.k.includes('iPhone') && r.kind === 'ours' ? 'GPU only' : 'not reported');
   const t = h('table', { class: 'best-t' });
   t.append(h('thead', {}, h('tr', {}, h('th', {}), ...cols.map((c) => h('th', {}, c.k)))));
@@ -316,7 +320,7 @@ function barPath(x, yTop, w, yBase) { const r = Math.min(3, w / 2, Math.max(0, y
 // ------------------------------------------------------------ recipe ablations (horizontal bars)
 export function recipeChart(R) { const box = $('recipeChart'); responsive(box, () => drawRecipe(R, box)); }
 function drawRecipe(R, box) {
-  const W = fitW(box, 400, 640), rowH = 26, m = { l: 190, r: 52, t: 6, b: 48 };
+  const W = fitW(box, 280, 640), narrow = W < 480, rowH = 26, m = { l: narrow ? 160 : 190, r: narrow ? 40 : 52, t: 6, b: 48 };
   const H = m.t + m.b + rowH * R.length;
   const s = svg(box, W, H, 'Validation WER for each ablation of the recipe');
   const x = lin(0, 14, m.l, W - m.r);

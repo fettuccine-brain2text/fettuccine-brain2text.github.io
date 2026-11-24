@@ -202,15 +202,19 @@
     <div class="wrap">
       <div class="sec-head">
         <h2>The most accurate end-to-end brain-to-text decoders.</h2>
-        <p>Our most accurate model reaches a 4.39% word error rate on brain-to-text 2025 (participant T15), against 8.70% for the best previous end-to-end decoder. Among end-to-end decoders, it also leads on brain-to-text 2024 (participant T12).</p>
+        <p>FETTUCCINE achieves word error rates of 4.39% on brain-to-text 2025 (participant T15) and 11.04% on brain-to-text 2024 (participant T12), against 8.70% and 15.67% for the best previous end-to-end decoders. Cascaded models that add a language model reach similar or lower error rates, but need far more memory.</p>
       </div>
 
       <figure class="card fig">
         <div class="fig-bar">
-          <div class="legend"><span><i style="background:var(--whisper)"></i>FETTUCCINE · Whisper</span><span><i style="background:var(--parakeet)"></i>FETTUCCINE · Parakeet</span><span><i style="background:var(--fg-3);opacity:.6"></i>end-to-end baselines</span><span><i style="background:var(--fg-3);opacity:.35"></i>cascade</span></div>
-          <span class="note">Test word error rate · lower is better</span>
+          <div class="seg" role="group" aria-label="Participant">
+            <button type="button" data-werpart="wer_pub" aria-pressed="true">T15</button>
+            <button type="button" data-werpart="t12" aria-pressed="false">T12</button>
+          </div>
+          <div class="legend"><span><i style="background:var(--whisper)"></i>FETTUCCINE · Whisper</span><span><i style="background:var(--parakeet)"></i>FETTUCCINE · Parakeet</span><span><i style="background:var(--fg-3);opacity:.6"></i>previous end-to-end</span></div>
         </div>
-        <div class="pair" id="werChart"></div>
+        <div id="werChart"></div>
+        <figcaption>Test word error rate · lower is better</figcaption>
       </figure>
 
       <div class="table-wrap" id="bestTable"></div>

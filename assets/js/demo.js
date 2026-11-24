@@ -245,12 +245,11 @@ async function decodeCurrent() {
   const btn = $('decodeBtn'); btn.disabled = true;
   const out = $('outText');
   const live = S.engine === 'live';
-  out.innerHTML = live ? '<span class="placeholder">Encoding…</span>' : '';
+  out.innerHTML = live ? '<span class="placeholder">Decoding…</span>' : '';
   let text, encMs, decMs, steps;
   if (live) {
     let lastLen = 0;
     const res = await runLive(modelInput(t), {
-      onEncoded: () => { out.innerHTML = '<span class="placeholder">Decoding…</span>'; },
       onToken: (m) => {
         const words = normalize(m.text).split(' ').filter(Boolean);
         if (words.length !== lastLen) {
@@ -272,7 +271,7 @@ async function decodeCurrent() {
   if (encMs !== undefined) {
     // time in this browser only; see the note at the bottom of the page
     note.textContent = `${errs} · ${fmtMs(encMs + decMs)} on your ${S.where || 'device'}` + (hyp === normalize(t.decode.text) ? '' : ' · differs slightly from the saved output (a near tie)');
-    note.title = `encode ${fmtMs(encMs)} + ${steps} tokens ${fmtMs(decMs)}`;
+    note.title = `neural encoder ${fmtMs(encMs)} + text decoder ${fmtMs(decMs)} (${steps} tokens)`;
   } else {
     S.playedSaved = true;
     note.textContent = `${errs} · ${savedNote()}`; note.title = '';
@@ -376,11 +375,11 @@ function drawTimeSal() {
   const cssW = cv.clientWidth || 800, cssH = 200;
   cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssH * dpr); cv.style.height = cssH + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, cssW, cssH);
-  const left = 72, right = 14, top = 8, ph = 160, w = cssW - left - right, Tn = t.meta.T;
+  const narrow = cssW < 520, left = narrow ? 8 : 72, right = narrow ? 8 : 14, top = 8, ph = 160, w = cssW - left - right, Tn = t.meta.T;
   const xs = (f) => left + (f / Tn) * w;
   for (const [s, e] of t.wb || []) { ctx.fillStyle = T.bg3; ctx.fillRect(xs(s), top, xs(e) - xs(s), ph); }
   ctx.font = `500 11px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillText('saliency', left - 10, top + ph / 2);
+  if (!narrow) ctx.fillText('saliency', left - 10, top + ph / 2);
   if (S.word === 'global') {
     ctx.textAlign = 'center'; ctx.fillText('Pick a word or the whole sentence to see when the decoder looked.', left + w / 2, top + ph / 2);
     return;
@@ -401,11 +400,11 @@ function drawTimeSal() {
     ctx.lineWidth = isSel ? 2 : 1.25; ctx.stroke(); ctx.globalAlpha = 1;
   }
   // labels at peaks
-  ctx.font = `500 13px ${T.display}`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  const lanes = [-1e9, -1e9];
+  ctx.font = `500 ${narrow ? 12 : 13}px ${T.display}`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  const lanes = [-1e9, -1e9];   // two rows of labels; each word takes the first row it fits in
   t.words.forEach((wd, i) => {
     const x = xs(t.sal_peak[i]), tw = ctx.measureText(wd.w).width;
-    const lane = x - tw / 2 < lanes[0] + 4 ? 1 : 0; lanes[lane] = x + tw / 2;
+    const fits = lanes.findIndex((end) => x - tw / 2 >= end + 4), lane = fits >= 0 ? fits : lanes[0] <= lanes[1] ? 0 : 1; lanes[lane] = x + tw / 2;
     ctx.fillStyle = i === sel ? T.accent : sel < 0 ? T.fg : T.fg3; ctx.fillText(wd.w, x, top + 18 + lane * 16);
   });
   ctx.font = `400 10px ${T.ui}`; ctx.fillStyle = T.fg3; ctx.textBaseline = 'top';
