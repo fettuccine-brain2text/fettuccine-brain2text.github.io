@@ -242,6 +242,7 @@ details.more > div { margin-top: 12px; }
 .node small { font-size: 0.8125rem; color: var(--fg-2); line-height: 1.3; text-wrap: balance; white-space: pre-line; }
 .node.io { box-shadow: 0 0 0 1px var(--line-2) inset; }
 .node.io.out b { font-weight: 500; }
+figure[data-backbone="parakeet"] { --accent: var(--parakeet); --accent-wash: color-mix(in srgb, var(--parakeet) 14%, transparent); }
 .node.trained { background: var(--accent-wash); box-shadow: 0 0 0 1.5px var(--accent) inset; }
 .node.frozen { background: var(--node-frozen); box-shadow: 0 0 0 1px var(--line-2) inset; }
 .node .lora { margin-top: 3px; font-size: 0.6875rem; font-weight: 600; line-height: 1; padding: 4px 9px; border-radius: 980px; color: var(--accent); background: var(--accent-wash); box-shadow: 0 0 0 1px var(--accent) inset; }
