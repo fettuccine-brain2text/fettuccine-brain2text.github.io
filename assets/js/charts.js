@@ -93,14 +93,37 @@ export function initRace(P) {   // P: per-sentence latencies, aligned across dec
 }
 
 // ------------------------------------------------------------ WER vs memory
-export function memoryChart(M) { const box = $('memChart'); responsive(box, () => drawMemory(M, box)); }
-function drawMemory(M, box) {
+// T15: our points are the WER measured on the phone. T12: no phone runs, so the WER is from the
+// GPU evaluation (zoo table, same model sizes); the memory stays the phone's.
+const T12_ROW = {   // memory point -> zoo row (BrainWhisperer reports no T12 result)
+  'GRU + 5-gram + LLM': 'GRU + 5-gram + OPT-6.7B', 'BIT E2E': 'BIT E2E (Aero1-Audio 1.5B)',
+  'LightBeam': 'LightBeam (GRU) + 4-gram + Llama-3.2-1B', 'Parakeet TDT v2': 'Parakeet TDT',
+};
+const T12_LAB = { 'Whisper Base': [-10, 4, 'end'], 'Whisper Small': [10, 15, 'start'], 'Parakeet EOU': [10, -7, 'start'] };
+export function memoryChart(M, Z) {
+  const box = $('memChart'); let part = 't15';
+  const t12 = M.map((p) => {
+    const r = Z.rows.find((q) => q.name === (T12_ROW[p.name] || p.name));
+    return r && r.t12 != null ? { ...p, wer: r.t12, lab: T12_LAB[p.name] || (p.name.startsWith('GRU') ? p.lab : undefined), note: p.kind === 'ours' ? 'T12 WER on GPU · memory on iPhone 15 Pro Max' : p.note } : null;
+  }).filter(Boolean);
+  const note = $('memNote');
+  const set = (k) => {
+    part = k;
+    document.querySelectorAll('[data-mempart]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mempart === k)));
+    note.textContent = k === 't15' ? 'T15 (brain-to-text 2025). FETTUCCINE word error rates measured on the phone.'
+      : 'T12 (brain-to-text 2024). FETTUCCINE word error rates from GPU evaluation.';
+    drawMemory(k === 't15' ? M : t12, box, k === 't15' ? [4, 12.5, [4, 6, 8, 10, 12]] : [8, 21, [8, 10, 12, 14, 16, 18, 20]]);
+  };
+  document.querySelectorAll('[data-mempart]').forEach((b) => b.addEventListener('click', () => set(b.dataset.mempart)));
+  responsive(box, () => set(part));
+}
+function drawMemory(M, box, [y0, y1, yTicks]) {
   const W = fitW(box, 620), H = 420, m = { l: 56, r: 24, t: 16, b: 48 };
   const s = svg(box, W, H, 'Word error rate versus peak memory');
-  const x = logs(0.1, 1000, m.l, W - m.r), y = lin(4, 12.5, H - m.b, m.t);
+  const x = logs(0.1, 1000, m.l, W - m.r), y = lin(y0, y1, H - m.b, m.t);
   const g = el('g', { class: 'grid' }, s);
   for (const t of [0.1, 0.3, 1, 3, 10, 30, 100, 300, 1000]) { el('line', { x1: x(t), x2: x(t), y1: m.t, y2: H - m.b }, g); el('text', { x: x(t), y: H - m.b + 18, 'text-anchor': 'middle', text: t < 1 ? t * 1000 + ' MB' : t + ' GB' }, s); }
-  for (const t of [4, 6, 8, 10, 12]) { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 10, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
+  for (const t of yTicks) { el('line', { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }, g); el('text', { x: m.l - 10, y: y(t) + 4, 'text-anchor': 'end', text: t + '%' }, s); }
   el('text', { x: (m.l + W - m.r) / 2, y: H - 8, 'text-anchor': 'middle', text: 'peak memory (log scale)' }, s);
   el('text', { x: 14, y: (m.t + H - m.b) / 2, transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})`, 'text-anchor': 'middle', text: 'word error rate' }, s);
   for (const p of M) {

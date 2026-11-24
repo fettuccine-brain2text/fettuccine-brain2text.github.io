@@ -59,5 +59,5 @@ near(['method'], async () => { safe('pipeline', pipeline); });
 near(['augment'], async () => { const s = await site(); safe('augment', () => initAugment(s.aug)); safe('recipe', () => recipeChart(s.recipe)); });
 near(['results'], async () => { const s = await site(); safe('wer', () => werChart(s.zoo)); safe('best', () => bestTable(s.zoo)); safe('zoo', () => zooTable(s.zoo)); });
 near(['latency'], async () => { const s = await site(); safe('latency', () => latencyChart(s.latency)); safe('race', () => initRace(s.latency_paired)); });
-near(['mobile'], async () => { const s = await site(); safe('memory', () => memoryChart(s.memory)); });
+near(['mobile'], async () => { const s = await site(); safe('memory', () => memoryChart(s.memory, s.zoo)); });
 near(['adaptation'], async () => { const s = await site(); safe('adapt', () => initAdaptation(s.finetune)); });
