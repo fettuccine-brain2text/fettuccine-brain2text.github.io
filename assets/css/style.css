@@ -276,7 +276,9 @@ figure[data-backbone="parakeet"] { --accent: var(--parakeet); --accent-wash: col
 .brain .b-name { font-size: 17px; font-weight: 600; dominant-baseline: middle; }
 .brain .b-region { font-size: 12.5px; fill: var(--fg-3); dominant-baseline: middle; }
 .brain .mk { cursor: default; }
-@media (max-width: 640px) { .brain .b-name { font-size: 30px; } .brain .b-region { display: none; } }
+.brain .b-cite { font-size: 12px; fill: var(--fg-3); opacity: 0.75; }
+.brain a:hover .b-cite { opacity: 1; text-decoration: underline; }
+@media (max-width: 640px) { .brain .b-name { font-size: 30px; } .brain .b-region { display: none; } .brain .b-cite { font-size: 22px; } }
 .array.hl .grid8 { border-color: var(--accent); }
 .arrays { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 @media (max-width: 640px) { .arrays { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
