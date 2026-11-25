@@ -13,6 +13,10 @@ the same license as the paper. Commercial use needs written permission from the 
 - `assets/img/`, except `t15_brain.webp` and `t15_brain_zoom.webp`: these are adapted with permission from
   Card et al., *NEJM* 2024, and are not covered by this license (all rights reserved by their authors).
 
+The participant video in `assets/video/` (`t16_demo.mp4` and its poster image) is not covered by this
+license. It shows a research participant and is shared with their consent for viewing on this site only.
+All rights are reserved; do not copy, edit or redistribute it.
+
 Please cite the paper when you reuse them (see the Citation section of the site).
 
 The neural recordings in `assets/data/trials/*.bin.gz` and `assets/data/hero.json` are excerpts of the
