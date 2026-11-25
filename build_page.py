@@ -5,6 +5,9 @@ og:image, JSON-LD), robots.txt and sitemap.xml, and the "Open on your phone" QR 
 only shows when it is opened at that address.
 """
 import datetime
+import glob
+import hashlib
+import json
 import os
 import segno   # pip install segno
 
@@ -26,6 +29,18 @@ src = src.replace('<a class="qr" id="qr" hidden>', f'<a class="qr" id="qr" href=
 if os.path.isdir(f"{SITE}/tools"):
     open(f"{SITE}/tools/page.fragment.html", "w").write(src)   # page body without <html>/<head>, for previews
 
+# Cache busting: GitHub Pages lets browsers keep CSS and JS for 10 minutes, so after a deploy a visitor could get
+# the new HTML with old styles or scripts. Every local CSS and JS URL gets ?v=<hash of all of them>; the import map
+# carries the same version to the modules that app.js imports, and demo.js passes it on to the decoder worker.
+code = sorted(glob.glob(f"{SITE}/assets/css/*.css") + glob.glob(f"{SITE}/assets/js/*.js"))
+V = hashlib.sha1(b"".join(open(f, "rb").read() for f in code)).hexdigest()[:10]
+for f in ("assets/css/style.css", "assets/css/phone.css"):
+    src = src.replace(f'href="{f}"', f'href="{f}?v={V}"')
+for f in ("assets/js/config.js", "assets/js/app.js"):
+    src = src.replace(f'src="{f}"', f'src="{f}?v={V}"')
+imports = {f"./assets/js/{os.path.basename(f)}": f"./assets/js/{os.path.basename(f)}?v={V}" for f in code if f.endswith(".js")}
+importmap = f'<script type="importmap">{json.dumps({"imports": imports})}</script>'
+
 cut = src.index("<nav")
 head, body = src[:cut], src[cut:]
 head = head.replace('<link rel="stylesheet" href="https://fonts.googleapis.com', '<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com')
@@ -38,6 +53,7 @@ doc = f"""<!doctype html>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <!-- enables multi-threaded WebAssembly on hosts that cannot set COOP/COEP headers (e.g. GitHub Pages) -->
 <script src="coi-serviceworker.min.js"></script>
+{importmap}
 {head.strip()}
 </head>
 <body>

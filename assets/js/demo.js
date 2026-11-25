@@ -90,7 +90,7 @@ function ensureModel() {
       resolve(false);
     }
     function start(threads) {
-      try { w = new Worker(new URL('./decoder.worker.js', import.meta.url), { type: 'module' }); }
+      try { w = new Worker(new URL('./decoder.worker.js' + new URL(import.meta.url).search, import.meta.url), { type: 'module' }); }
       catch (e) { fallback(String(e)); return; }
       S.worker = w;
       w.onerror = (e) => fallback(e.message || 'worker error');
