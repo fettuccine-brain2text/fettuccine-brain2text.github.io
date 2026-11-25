@@ -49,6 +49,7 @@
   <div class="wrap">
     <a class="wordmark" href="#top">FETTUCCINE</a>
     <ul>
+      <li><a href="#live">In use</a></li>
       <li><a href="#demo">Demo</a></li>
       <li><a href="#method">Method</a></li>
       <li><a href="#results">Results</a></li>
@@ -76,9 +77,10 @@
       <a href="https://neuroengineering.ucdavis.edu/people/sergey-stavisky" target="_blank" rel="noopener">Sergey D. Stavisky</a><sup>5</sup>
       <a href="https://snel.ai/author/chethan-pandarinath/" target="_blank" rel="noopener">Chethan Pandarinath</a><sup>1,2</sup>
     </p>
-    <p class="affils"><span><sup>1</sup>Georgia Tech</span> <span><sup>2</sup>Emory University</span> <span><sup>3</sup>Mila</span> <span><sup>4</sup>Université de Montréal</span> <span><sup>5</sup>UC Davis</span> <span><sup>*</sup>Equal contribution</span></p>
+    <p class="affils"><span><sup>1</sup>Georgia Tech</span> <span><sup>2</sup>Emory University</span> <span><sup>3</sup>Mila</span> <span><sup>4</sup>Université de Montréal</span> <span><sup>5</sup>UC Davis</span> <span><sup>*</sup>Equal contribution</span> <span><a href="#live-ack">[T16 demo acknowledgments]</a></span></p>
     <div class="btns">
       <a class="btn primary" href="#demo">Live demo</a>
+      <a class="btn" href="#live">Watch it in use</a>
       <a class="btn" href="#" data-todo="paper-url">Paper</a>
       <a class="btn" href="#" data-todo="arxiv-url">arXiv</a>
       <a class="btn" href="#cite">Cite</a>
@@ -99,6 +101,25 @@
     </details>
   </div>
 </header>
+
+<section class="beyond" id="live" aria-labelledby="liveTitle">
+  <div class="wrap">
+    <p class="beyond-label">Beyond the paper</p>
+    <h2 id="liveTitle">FETTUCCINE in use.</h2>
+    <p class="beyond-lead">We deployed FETTUCCINE for online use by participant T16.</p>
+    <figure class="live">
+      <div class="live-frame">
+        <video id="liveVideo" src="assets/video/t16_demo.mp4" poster="assets/video/t16_demo_poster.webp" controls playsinline preload="metadata" aria-label="Participant T16 mimes cued sentences while an iPhone decodes them"></video>
+        <span class="live-tag">Live session · participant T16</span>
+      </div>
+      <figcaption>
+        <p>Participant T16 mimes different cued sentences. FETTUCCINE (Whisper Small) decodes her neural activity on an iPhone 16 Pro Max in real time.</p>
+        <p class="live-credit" id="live-ack">T16 session: Jonathan D. McCart, Pranav I. Deevi, Mehdi Azabou, Nanda H. Krishna, Caleb A. McKinney, Himanish Agarwal, Brice A. Richards, Jorick te Velde, Nicholas S. Card, Sergey D. Stavisky, Nicholas AuYong, Chethan Pandarinath.</p>
+        <p class="live-credit">T16 is enrolled in the BrainGate2 clinical trial (ClinicalTrials.gov <a href="https://clinicaltrials.gov/study/NCT00912041" target="_blank" rel="noopener">NCT00912041</a>). CAUTION: Investigational device. Limited by federal law to investigational use.</p>
+      </figcaption>
+    </figure>
+  </div>
+</section>
 
 <main>
   <section class="block" id="demo">
@@ -363,9 +384,8 @@
   <div class="wrap">
     <div class="foot">
       <p id="name"><b class="wordmark">FETTUCCINE</b> · <b>F</b>ast and <b>E</b>fficient <b>T</b>hought-to-<b>T</b>ext <b>U</b>nified <b>C</b>ross-modal <b>C</b>ommunication <b>I</b>nterfacing via <b>N</b>eural <b>E</b>mbeddings</p>
-      <p>We thank participants T12, T15, and T16 and their families. Neural recordings: brain-to-text 2025 (T15; <a href="https://doi.org/10.1056/NEJMoa2314132" target="_blank" rel="noopener">Card et al., 2024</a>) and brain-to-text 2024 (T12; <a href="https://doi.org/10.1038/s41586-023-06377-x" target="_blank" rel="noopener">Willett et al., 2023</a>) datasets, both CC0.</p>
-      <p>P.I.D. and C.A.M. were supported by the Georgia Tech/Emory NIH/NIBIB Training Program in Computational Neural-engineering (T32EB025816). N.H.K. acknowledges financial support from the Fonds de recherche du Québec (Secteur NT, grant 2009130) and computational resources provided by Mila and the Digital Research Alliance of Canada. C.P. was supported by the NIH Director’s New Innovator Award (DP2NS127291).</p>
-      <p>Code: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>. Paper content, model weights, and results: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE-CONTENT.md" target="_blank" rel="noopener">CC BY-NC 4.0</a>. <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>. © 2026 The FETTUCCINE authors.</p>
+      <p>We thank participants T12, T15, and T16 and their families, and the BrainGate consortium. All three are enrolled in the BrainGate2 clinical trial (NCT00912041). Neural recordings: brain-to-text 2025 (T15; <a href="https://doi.org/10.1056/NEJMoa2314132" target="_blank" rel="noopener">Card et al., 2024</a>) and brain-to-text 2024 (T12; <a href="https://doi.org/10.1038/s41586-023-06377-x" target="_blank" rel="noopener">Willett et al., 2023</a>) datasets, both CC0.</p>
+      <p>Website code: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>. Paper content, model weights, results, and video: <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/LICENSE-CONTENT.md" target="_blank" rel="noopener">CC BY-NC 4.0</a>. <a href="https://github.com/fettuccine-brain2text/fettuccine-brain2text.github.io/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener">Third-party notices</a>. © 2026 The FETTUCCINE authors.</p>
     </div>
   </div>
 </footer>

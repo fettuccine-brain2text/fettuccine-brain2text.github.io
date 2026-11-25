@@ -2,13 +2,14 @@
 
 Copyright (c) 2026 The FETTUCCINE authors.
 
-The paper content on this site, and the model weights in `assets/model/`, are licensed under
+Everything on this site except the website code is licensed under
 [Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/),
-the same license as the paper. This covers:
+the same license as the paper. Commercial use needs written permission from the authors. This covers:
 
 - the text, figures, and tables reproduced from the paper, and the numbers behind the charts (`assets/data/site.json`);
 - the decoded outputs, saliency maps, and lesion results in `assets/data/`;
-- the trained model weights (`assets/model/`), which are finetuned from Whisper (MIT, see `THIRD_PARTY_NOTICES.md`);
+- the trained model weights, including the in-browser model in `assets/model/`, which are finetuned from Whisper (MIT, see `THIRD_PARTY_NOTICES.md`);
+- the participant video and its poster image in `assets/video/`;
 - `assets/img/`, except the brain images below.
 
 Please cite the paper when you reuse them (see the Citation section of the site).
@@ -22,4 +23,5 @@ The brain images `assets/img/t15_brain.webp` and `assets/img/t15_brain_zoom.webp
 are adapted with permission from Card et al., *NEJM* 2024 (<https://doi.org/10.1056/NEJMoa2314132>). They are not
 covered by this license.
 
-The website code is licensed separately under the MIT License (`LICENSE`).
+The website code (HTML, CSS, JavaScript, and Python files) is licensed separately under the MIT License (`LICENSE`),
+except the third-party components listed in `THIRD_PARTY_NOTICES.md`.
